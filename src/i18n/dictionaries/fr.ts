@@ -1,0 +1,65 @@
+import type { Dictionary } from "./pt";
+
+const fr: Dictionary = {
+  meta: {
+    title: "Sobremesas & Companhia : votre espace client",
+    description: "Demandez des devis, suivez vos demandes et échangez avec nous. Sobremesas & Companhia, Santo Tirso.",
+  },
+  common: {
+    brand: "Sobremesas & Companhia",
+    tagline: "Petite production, avec dévouement",
+    language: "Langue",
+    signIn: "Se connecter",
+    signUp: "Créer un compte",
+    signOut: "Se déconnecter",
+    account: "Mon compte",
+    backoffice: "Backoffice",
+    site: "Voir le site",
+    save: "Enregistrer",
+    cancel: "Annuler",
+    loading: "Chargement…",
+    retry: "Réessayer",
+    error: "Une erreur est survenue. Veuillez réessayer.",
+    menu: "Menu",
+    closeMenu: "Fermer le menu",
+    siteBy: "Site par",
+  },
+  home: {
+    kicker: "Plateforme",
+    title: "Votre espace client arrive.",
+    intro:
+      "Bientôt vous pourrez demander des devis avec des photos de vos idées, suivre chaque demande et échanger avec nous ici. D'ici là, continuez à utiliser le site et WhatsApp.",
+    request: "Demander un devis",
+    requestSoon: "Demandes de devis — bientôt",
+    landing: "Aller sur le site",
+    haveAccount: "Vous avez déjà un compte ?",
+  },
+  account: {
+    title: "Mon compte",
+    welcome: "Bonjour, {name}",
+    requests: "Mes demandes",
+    requestsEmpty: "Vous n'avez pas encore de demande. Dès que vous demanderez un devis, vous le suivrez ici.",
+    settings: "Paramètres",
+    profile: "Vos informations",
+    name: "Nom",
+    email: "E-mail",
+    phone: "Portable",
+    phoneHint: "Utilisé uniquement pour échanger avec vous au sujet de vos demandes.",
+    language: "Langue préférée",
+    languageHint: "La langue de cet espace et des e-mails que nous vous envoyons.",
+    saved: "Informations enregistrées.",
+    emailUnverified: "E-mail non confirmé",
+    emailUnverifiedHint: "Confirmez votre e-mail via le lien que nous vous avons envoyé pour que nous puissions rattacher les demandes faites sans compte.",
+    danger: "Supprimer le compte",
+    dangerHint: "Vos demandes deviennent anonymes et vous ne pourrez plus vous connecter. Cette action est irréversible.",
+    dangerConfirm: "Supprimer mon compte",
+    deleted: "Votre compte a été supprimé.",
+    signInRequired: "Connectez-vous pour voir votre compte.",
+  },
+  footer: {
+    rights: "Tous droits réservés.",
+    privacy: "Confidentialité",
+  },
+};
+
+export default fr;

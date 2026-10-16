@@ -1,0 +1,65 @@
+import type { Dictionary } from "./pt";
+
+const en: Dictionary = {
+  meta: {
+    title: "Sobremesas & Companhia: your client area",
+    description: "Ask for quotes, follow your requests and talk to us. Sobremesas & Companhia, Santo Tirso.",
+  },
+  common: {
+    brand: "Sobremesas & Companhia",
+    tagline: "Small-batch, made with care",
+    language: "Language",
+    signIn: "Sign in",
+    signUp: "Create account",
+    signOut: "Sign out",
+    account: "My account",
+    backoffice: "Backoffice",
+    site: "Visit the site",
+    save: "Save",
+    cancel: "Cancel",
+    loading: "Loading…",
+    retry: "Try again",
+    error: "Something went wrong. Please try again.",
+    menu: "Menu",
+    closeMenu: "Close menu",
+    siteBy: "Site by",
+  },
+  home: {
+    kicker: "Platform",
+    title: "Your client area is on its way.",
+    intro:
+      "Soon you will be able to ask for quotes with photos of your ideas, follow every request and talk to us here. Until then, keep using the site and WhatsApp.",
+    request: "Get a quote",
+    requestSoon: "Quote requests — coming soon",
+    landing: "Go to the site",
+    haveAccount: "Already have an account?",
+  },
+  account: {
+    title: "My account",
+    welcome: "Hello, {name}",
+    requests: "My requests",
+    requestsEmpty: "You have no requests yet. When you ask for a quote, you will follow it here.",
+    settings: "Settings",
+    profile: "Your details",
+    name: "Name",
+    email: "Email",
+    phone: "Mobile",
+    phoneHint: "Only used to talk to you about your requests.",
+    language: "Preferred language",
+    languageHint: "The language of this area and of the emails we send you.",
+    saved: "Details saved.",
+    emailUnverified: "Email not confirmed",
+    emailUnverifiedHint: "Confirm your email through the link we sent you so we can attach requests made without an account.",
+    danger: "Delete account",
+    dangerHint: "Your requests become anonymous and you will no longer be able to sign in. This cannot be undone.",
+    dangerConfirm: "Delete my account",
+    deleted: "Your account has been deleted.",
+    signInRequired: "Please sign in to see your account.",
+  },
+  footer: {
+    rights: "All rights reserved.",
+    privacy: "Privacy",
+  },
+};
+
+export default en;

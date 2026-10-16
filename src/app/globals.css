@@ -1,0 +1,127 @@
+@import "tailwindcss";
+
+/* Palette taken from the Sobremesas & Companhia logo and Instagram highlight badges */
+@theme {
+  --color-acucar: #fffdfb;      /* sugar white — page background */
+  --color-po: #d6e5f0;          /* powder blue — hero field, badges */
+  --color-po-fundo: #7fa3bf;    /* deeper powder blue — line icons, borders */
+  --color-cacau: #4b2e22;       /* chocolate — text, primary buttons */
+  --color-cacau-suave: #7a5a4b; /* softer chocolate — secondary text */
+  --color-merengue: #f6dfe0;    /* blush pink — accent band */
+  --color-folha: #6e8f9e;       /* leaf blue-grey — flourishes */
+
+  --font-display: "Young Serif", Georgia, serif;
+  --font-sans: "Figtree Variable", system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+body {
+  background: var(--color-acucar);
+  color: var(--color-cacau);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-cacau);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Signature element: the scalloped edge of a cake doily, also used on the Instagram highlight badges */
+.scallop-bottom {
+  --s: 22px;
+  mask:
+    radial-gradient(var(--s) at 50% calc(100% - var(--s)), #000 99%, #0000 101%) 50% / calc(2 * var(--s)) 100% repeat-x,
+    linear-gradient(#000 0 0) top / 100% calc(100% - var(--s)) no-repeat;
+  padding-bottom: var(--s);
+}
+.scallop-top {
+  --s: 22px;
+  mask:
+    radial-gradient(var(--s) at 50% var(--s), #000 99%, #0000 101%) 50% / calc(2 * var(--s)) 100% repeat-x,
+    linear-gradient(#000 0 0) bottom / 100% calc(100% - var(--s)) no-repeat;
+  padding-top: var(--s);
+}
+
+/* Scalloped circle badge (like the story highlights) */
+.scallop-badge {
+  clip-path: polygon(
+    50% 0%, 61% 3.4%, 71% 2.9%, 78% 9.5%, 88% 12%, 90.5% 22%, 97% 29%, 96.6% 39%, 100% 50%,
+    96.6% 61%, 97% 71%, 90.5% 78%, 88% 88%, 78% 90.5%, 71% 97%, 61% 96.6%, 50% 100%,
+    39% 96.6%, 29% 97%, 22% 90.5%, 12% 88%, 9.5% 78%, 3% 71%, 3.4% 61%, 0% 50%,
+    3.4% 39%, 3% 29%, 9.5% 22%, 12% 12%, 22% 9.5%, 29% 3%, 39% 3.4%
+  );
+}
+
+/* Arched photo frame, like a cake dome */
+.arch {
+  border-radius: 999px 999px 18px 18px;
+}
+
+/* Hero entrance: the one orchestrated motion moment */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+.rise { animation: rise 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.rise-1 { animation-delay: 0.1s; }
+.rise-2 { animation-delay: 0.25s; }
+.rise-3 { animation-delay: 0.4s; }
+
+/* ---- Mobile hardening ---- */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+body {
+  overflow-x: clip; /* no sideways wobble from shadows or the scalloped edges */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Horizontal scrollers (occasion filter) without a visible bar */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* iOS Safari collapses empty date inputs and centres their value */
+input[type="date"]::-webkit-date-and-time-value { text-align: left; min-height: 1.5em; }
+input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.6; }
+
+/* With appearance:none the native select arrow is gone, so draw one */
+.select-chevron {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234b2e22' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.9rem center;
+  background-size: 1.1rem;
+}
+
+/* Smaller scallops on phones so the edge reads as lace, not bubbles */
+@media (max-width: 640px) {
+  .scallop-bottom, .scallop-top { --s: 14px; }
+}
+
+/* Hint that the occasion row scrolls sideways on phones */
+@media (max-width: 767px) {
+  .fade-edge {
+    mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent);
+  }
+}
+
+/* ---- Platform additions (client area + backoffice) ---- */
+@theme {
+  --color-creme: #f7f1ec;        /* warm neutral — backoffice page background, table heads */
+  --color-linha: #e9dfd7;        /* warm hairline — borders */
+  --animate-fade-in: fade-in 0.15s ease-out;
+  --animate-slide-up: slide-up 0.2s ease-out;
+}
+@keyframes fade-in { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: none; } }
+@keyframes slide-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+dialog::backdrop { background: rgb(75 46 34 / 0.45); backdrop-filter: blur(2px); }

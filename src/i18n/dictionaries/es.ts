@@ -1,0 +1,65 @@
+import type { Dictionary } from "./pt";
+
+const es: Dictionary = {
+  meta: {
+    title: "Sobremesas & Companhia: su área de cliente",
+    description: "Pida presupuestos, siga sus solicitudes y hable con nosotros. Sobremesas & Companhia, Santo Tirso.",
+  },
+  common: {
+    brand: "Sobremesas & Companhia",
+    tagline: "Pequeña producción, con dedicación",
+    language: "Idioma",
+    signIn: "Entrar",
+    signUp: "Crear cuenta",
+    signOut: "Cerrar sesión",
+    account: "Mi cuenta",
+    backoffice: "Backoffice",
+    site: "Ver el sitio",
+    save: "Guardar",
+    cancel: "Cancelar",
+    loading: "Cargando…",
+    retry: "Intentar de nuevo",
+    error: "Se ha producido un error. Inténtelo de nuevo.",
+    menu: "Menú",
+    closeMenu: "Cerrar menú",
+    siteBy: "Sitio por",
+  },
+  home: {
+    kicker: "Plataforma",
+    title: "Su área de cliente está en camino.",
+    intro:
+      "Pronto podrá pedir presupuestos con fotos de sus ideas, seguir cada solicitud y hablar con nosotros aquí. Hasta entonces, siga usando el sitio y WhatsApp.",
+    request: "Pedir presupuesto",
+    requestSoon: "Solicitudes de presupuesto — próximamente",
+    landing: "Ir al sitio",
+    haveAccount: "¿Ya tiene cuenta?",
+  },
+  account: {
+    title: "Mi cuenta",
+    welcome: "Hola, {name}",
+    requests: "Mis solicitudes",
+    requestsEmpty: "Aún no tiene solicitudes. Cuando pida un presupuesto, podrá seguirlo aquí.",
+    settings: "Ajustes",
+    profile: "Sus datos",
+    name: "Nombre",
+    email: "Email",
+    phone: "Móvil",
+    phoneHint: "Solo lo usamos para hablar con usted sobre sus solicitudes.",
+    language: "Idioma preferido",
+    languageHint: "El idioma de esta área y de los emails que le enviamos.",
+    saved: "Datos guardados.",
+    emailUnverified: "Email sin confirmar",
+    emailUnverifiedHint: "Confirme su email con el enlace que le enviamos para que podamos asociar solicitudes hechas sin cuenta.",
+    danger: "Eliminar cuenta",
+    dangerHint: "Sus solicitudes pasan a ser anónimas y ya no podrá entrar. Esta acción no se puede deshacer.",
+    dangerConfirm: "Eliminar mi cuenta",
+    deleted: "Su cuenta ha sido eliminada.",
+    signInRequired: "Inicie sesión para ver su cuenta.",
+  },
+  footer: {
+    rights: "Todos los derechos reservados.",
+    privacy: "Privacidad",
+  },
+};
+
+export default es;
