@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card'
 import { Field, Input, Select } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Switch } from '@/components/ui/switch'
 import { backofficeApi } from '@/lib/api/backoffice'
 import { apiErrorMessage } from '@/lib/api/errors'
 import { useGoogleCalendars, useGoogleMutations, useGoogleStatus } from '@/lib/backoffice/queries'
@@ -23,7 +22,7 @@ const CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar.events'
 
 const scopeLabel: Record<string, string> = {
   'https://www.googleapis.com/auth/gmail.modify': 'Gmail (enviar e ler as conversas)',
-  'https://www.googleapis.com/auth/contacts': 'Contactos (importar e criar)',
+  'https://www.googleapis.com/auth/contacts': 'Contactos (adicionar clientes)',
   'https://www.googleapis.com/auth/calendar.events': 'Calendário (eventos das encomendas)',
   'https://www.googleapis.com/auth/calendar.readonly': 'Calendário (escolher a agenda)',
 }
@@ -100,8 +99,8 @@ function GoogleSettings() {
                     <Button size="sm" variant="secondary" disabled={label === data.gmailLabelName} loading={settings.isPending} onClick={() => settings.mutateAsync({ gmailLabelName: label }).then(() => toast.success('Guardado.')).catch((e) => toast.error(apiErrorMessage(e)))}>Guardar</Button>
                   </div>
                 </Field>
-                <Switch checked={data.pushContacts ?? true} onChange={(v) => settings.mutateAsync({ pushContacts: v }).catch((e) => toast.error(apiErrorMessage(e)))} label="Criar novos clientes nos Google Contacts" description="Quando chega uma encomenda de alguém novo (fase 4)." />
-                <p className="text-xs text-cacau/50">Importação de contactos e leitura das respostas chegam na próxima fase; a ligação já fica pronta para isso.</p>
+                <p className="text-sm text-cacau/70">Os clientes vão para os Google Contacts quando quiser: na ficha de cada cliente, <strong className="font-medium text-cacau">Adicionar aos Google Contacts</strong>. Ficam com a etiqueta “Sobremesas — clientes” e, a partir daí, o que mudar na ficha (nome, e-mail, telemóvel) passa também para o contacto.</p>
+                <p className="text-xs text-cacau/50">Leitura das respostas por e-mail chega na próxima fase; a ligação já fica pronta para isso.</p>
               </CardBody>
             </Card>
           )}

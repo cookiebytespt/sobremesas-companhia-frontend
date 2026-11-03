@@ -127,8 +127,10 @@ and store the API's tokens in two httpOnly cookies (`src/lib/auth/cookies.ts`): 
   only the changed fields, `ClientCard`, `ProposalCard`, `PaymentCard` in `components/backoffice/orders/`), *Conversa*
   (`OrderConversation`: e-mail thread + internal notes, composer with photo attachments, polls every 15 s) and *Histórico*.
 - **Clientes** `/backoffice/clients` (+ `[id]`: orders, editable record, merge dialog, "Registar encomenda" for that
-  client). **Contactos** `/backoffice/contacts` (handled toggle, convert to order). **Google** `/backoffice/settings/google`
-  (connect → the API's consent URL → back here with `?connected=1|error=`, scopes, label, push-contacts toggle, outbox
+  client, **Google Contacts** card: "Adicionar aos Google Contacts" → `clients.pushToGoogle` (`POST /admin/clients/:id/google`,
+  toast by `outcome` created/linked/updated), then Abrir / Atualizar (or "Tentar de novo" on `googleSyncError`) / Desligar
+  (unlink, the contact stays in Google). Adding is always manual — orders never push.) **Contactos** `/backoffice/contacts` (handled toggle, convert to order). **Google** `/backoffice/settings/google`
+  (connect → the API's consent URL → back here with `?connected=1|error=`, scopes, label (contacts are added per client, no toggle), outbox
   counters, retry failed e-mails).
 - Labels for statuses/payment/delivery/source live in `src/lib/labels.ts`; hooks in `lib/backoffice/queries.ts`
   (`useOrders`, `useOrder`, `useOrderMessages`, `useOrderMutations`, `useClients`, `useClient`, `useClientMutations`,
@@ -168,4 +170,4 @@ ConfirmDialog, Toaster, InviteUserDialog, NewOrderDialog, LoginForm, UserBits, L
 Phase 0–2: scaffold, BFF, backoffice dashboard, team, gallery, services, occasions. **Phase 3 done (2026-10-30)**: own
 sign-in (Auth0 and the client area removed), public `/request` + `/contact`, Encomendas with the e-mail conversation,
 Clientes, Contactos, Definições → Google. **2026-11-03**: the landing's content ported — the platform is the website.
-Next: inbound e-mail sync + inbox + Google Contacts (4), calendar (5), domain switch (6), hardening + passkeys (7).
+Google Contacts push on demand done (2026-11-03). Next: inbound e-mail sync + inbox + contacts import (4), calendar (5), domain switch (6), hardening + passkeys (7).

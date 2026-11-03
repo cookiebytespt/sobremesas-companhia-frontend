@@ -285,11 +285,18 @@ export interface Client {
   notes: string | null
   source: string
   googleLinked: boolean
+  /** The contact in Google Contacts, when linked. */
+  googleContactUrl: string | null
+  googleSyncedAt: string | null
+  /** The last push to Google Contacts failed (e.g. after an edit). */
+  googleSyncError: string | null
   lastOrderAt: string | null
   orderCount: number | null
   createdAt: string | null
 }
 
+/** created = new contact · linked = an existing contact with the same e-mail/phone · updated = already linked */
+export interface ClientGooglePush { client: Client; outcome: 'created' | 'linked' | 'updated' }
 export interface ClientDetail { client: Client; orders: OrderListItem[] }
 export interface ClientListQuery { q?: string; source?: string; page?: number; limit?: number }
 export interface ClientInput { name?: string; email?: string; phone?: string; locale?: Locale; notes?: string }

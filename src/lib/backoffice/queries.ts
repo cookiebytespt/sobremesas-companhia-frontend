@@ -222,6 +222,8 @@ export function useClientMutations(id?: string) {
     update: useMutation({ mutationFn: (input: ClientInput) => backofficeApi.clients.update(id!, input), onSuccess: done }),
     merge: useMutation({ mutationFn: (v: { keepId: string; mergeId: string }) => backofficeApi.clients.merge(v.keepId, v.mergeId), onSuccess: done }),
     remove: useMutation({ mutationFn: () => backofficeApi.clients.remove(id!), onSuccess: done }),
+    pushToGoogle: useMutation({ mutationFn: () => backofficeApi.clients.pushToGoogle(id!), onSuccess: done }),
+    unlinkGoogle: useMutation({ mutationFn: () => backofficeApi.clients.unlinkGoogle(id!), onSuccess: done }),
   }
 }
 

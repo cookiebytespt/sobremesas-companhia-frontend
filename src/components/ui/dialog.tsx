@@ -50,7 +50,9 @@ export function Modal({ open, onClose, title, description, children, footer, siz
         if (e.target === ref.current) onClose()
       }}
       className={cn(
-        'w-full rounded-2xl bg-white p-0 shadow-xl open:animate-fade-in',
+        // Tailwind's preflight zeroes margins, which removes the UA `margin: auto` that centres
+        // a modal <dialog>; restore it and keep a gutter + scroll on small/short viewports.
+        'm-auto w-[calc(100%-2rem)] max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl bg-white p-0 shadow-xl open:animate-fade-in',
         sizes[size]
       )}
     >

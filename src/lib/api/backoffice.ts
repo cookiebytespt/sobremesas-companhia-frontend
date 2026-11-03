@@ -27,6 +27,7 @@ import type {
   AdminOrderUpdateInput,
   Client,
   ClientDetail,
+  ClientGooglePush,
   ClientInput,
   ClientListQuery,
   ContactMessage,
@@ -118,6 +119,8 @@ export const backofficeApi = {
     update: (id: string, input: ClientInput) => apiFetch<Client>(`/admin/clients/${id}`, { method: 'PATCH', body: input }),
     merge: (keepId: string, mergeId: string) => apiFetch<Client>('/admin/clients/merge', { method: 'POST', body: { keepId, mergeId } }),
     remove: (id: string) => apiFetch<void>(`/admin/clients/${id}`, { method: 'DELETE' }),
+    pushToGoogle: (id: string) => apiFetch<ClientGooglePush>(`/admin/clients/${id}/google`, { method: 'POST' }),
+    unlinkGoogle: (id: string) => apiFetch<Client>(`/admin/clients/${id}/google`, { method: 'DELETE' }),
   },
   contacts: {
     list: (query: { handled?: boolean; page?: number; limit?: number } = {}) => apiFetch<Page<ContactMessage>>(`/admin/contacts${qs(query)}`),

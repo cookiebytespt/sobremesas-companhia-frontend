@@ -3,7 +3,7 @@
 import { use, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Merge, Plus, Trash2 } from 'lucide-react'
+import { ArrowLeft, ExternalLink, Link2Off, Merge, Plus, RefreshCw, Trash2, UserPlus } from 'lucide-react'
 import ConfirmDialog from '@/components/backoffice/ConfirmDialog'
 import NewOrderDialog from '@/components/backoffice/NewOrderDialog'
 import PageHeader from '@/components/backoffice/PageHeader'
@@ -26,11 +26,12 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
   const router = useRouter()
   const toast = useToast()
   const { data, isLoading, error } = useClient(id)
-  const { update, remove, merge } = useClientMutations(id)
+  const { update, remove, merge, pushToGoogle, unlinkGoogle } = useClientMutations(id)
   const [f, setF] = useState({ name: '', email: '', phone: '', locale: 'pt' as Locale, notes: '' })
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [merging, setMerging] = useState(false)
   const [ordering, setOrdering] = useState(false)
+  const [confirmUnlink, setConfirmUnlink] = useState(false)
 
   useEffect(() => {
     if (!data) return
@@ -48,6 +49,15 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
       await update.mutateAsync({ name: f.name.trim(), email: f.email.trim(), phone: f.phone.trim(), locale: f.locale, notes: f.notes })
       toast.success('Guardado.')
     } catch (err) { toast.error(apiErrorMessage(err)) }
+  }
+  const sendToGoogle = async () => {
+    try {
+      const { outcome } = await pushToGoogle.mutateAsync()
+      toast.success(outcome === 'created' ? 'Adicionado aos Google Contacts.' : outcome === 'linked' ? 'Já existia nos Google Contacts — ficou ligado e atualizado.' : 'Contacto atualizado no Google.')
+    } catch (err) { toast.error(apiErrorMessage(err)) }
+  }
+  const unlink = async () => {
+    try { await unlinkGoogle.mutateAsync(); toast.success('Ligação removida. O contacto continua no Google.'); setConfirmUnlink(false) } catch (err) { toast.error(apiErrorMessage(err)); setConfirmUnlink(false) }
   }
   const destroy = async () => {
     try { await remove.mutateAsync(); toast.success('Cliente apagado.'); router.replace('/backoffice/clients') } catch (err) { toast.error(apiErrorMessage(err)); setConfirmDelete(false) }
@@ -89,7 +99,8 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
             )}
           </CardBody>
         </Card>
-        <Card className="self-start">
+        <div className="space-y-6 self-start">
+        <Card>
           <CardHeader>
             <CardTitle>Ficha</CardTitle>
             <Button size="sm" onClick={save} disabled={!dirty} loading={update.isPending}>Guardar</Button>
@@ -104,13 +115,37 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
               </Select>
             </Field>
             <Field label="Notas" htmlFor="c-notes" hint="Só a equipa vê."><Textarea id="c-notes" rows={3} value={f.notes} onChange={(e) => setF({ ...f, notes: e.target.value })} /></Field>
-            <p className="text-xs text-cacau/50">Desde {formatDate(client.createdAt)}{client.googleLinked ? ' · nos Google Contacts' : ''}</p>
+            <p className="text-xs text-cacau/50">Desde {formatDate(client.createdAt)}</p>
           </CardBody>
         </Card>
+        <Card>
+          <CardHeader><CardTitle>Google Contacts</CardTitle></CardHeader>
+          <CardBody className="space-y-3 text-sm">
+            {client.googleLinked ? (
+              <>
+                <p className="text-cacau/70">Está nos contactos da loja, com a etiqueta “Sobremesas — clientes”. O que mudar nesta ficha passa também para o contacto.{client.googleSyncedAt ? ` Atualizado ${formatDate(client.googleSyncedAt, true)}.` : ''}</p>
+                {client.googleSyncError && <p className="rounded-md bg-[#fbeceb] px-3 py-2 text-xs text-[#b4534b]">A última atualização falhou: {client.googleSyncError}</p>}
+                <div className="flex flex-wrap gap-2">
+                  {client.googleContactUrl && <a href={client.googleContactUrl} target="_blank" rel="noreferrer" className="inline-flex min-h-9 items-center gap-1 rounded-md border border-linha px-3 text-cacau hover:bg-creme"><ExternalLink className="h-4 w-4" aria-hidden /> Abrir</a>}
+                  <Button size="sm" variant="secondary" onClick={sendToGoogle} loading={pushToGoogle.isPending}><RefreshCw className="h-4 w-4" aria-hidden /> {client.googleSyncError ? 'Tentar de novo' : 'Atualizar'}</Button>
+                  <Button size="sm" variant="secondary" onClick={() => setConfirmUnlink(true)}><Link2Off className="h-4 w-4" aria-hidden /> Desligar</Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="text-cacau/70">Ainda só existe na plataforma. Adicione-o para o ter no telemóvel da loja (chamadas, WhatsApp, Gmail). Se já houver um contacto com o mesmo e-mail{client.email ? '' : ' ou telemóvel'}, esse é ligado em vez de se criar um duplicado.</p>
+                {client.googleSyncError && <p className="rounded-md bg-[#fbeceb] px-3 py-2 text-xs text-[#b4534b]">Não foi possível: {client.googleSyncError}</p>}
+                <Button size="sm" onClick={sendToGoogle} loading={pushToGoogle.isPending}><UserPlus className="h-4 w-4" aria-hidden /> Adicionar aos Google Contacts</Button>
+              </>
+            )}
+          </CardBody>
+        </Card>
+        </div>
       </div>
 
       <NewOrderDialog open={ordering} onClose={() => setOrdering(false)} clientId={client.id} clientName={client.name} clientEmail={client.email ?? client.phone ?? undefined} onCreated={(o) => router.push(`/backoffice/orders/${o.id}`)} />
       <MergeDialog open={merging} onClose={() => setMerging(false)} keep={client} onMerge={async (mergeId) => { try { await merge.mutateAsync({ keepId: client.id, mergeId }); toast.success('Clientes juntos.'); setMerging(false) } catch (err) { toast.error(apiErrorMessage(err)) } }} />
+      <ConfirmDialog open={confirmUnlink} onClose={() => setConfirmUnlink(false)} onConfirm={unlink} title="Desligar dos Google Contacts?" description="O contacto não é apagado no Google; só deixa de ser atualizado a partir desta ficha." confirmLabel="Desligar" loading={unlinkGoogle.isPending} />
       <ConfirmDialog open={confirmDelete} onClose={() => setConfirmDelete(false)} onConfirm={destroy} title="Apagar cliente?" description="Só é possível sem encomendas. Esta ação não pode ser anulada." confirmLabel="Apagar" variant="danger" loading={remove.isPending} />
     </>
   )
