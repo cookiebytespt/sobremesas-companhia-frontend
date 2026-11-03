@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
 import LoginForm from '@/components/backoffice/LoginForm'
-import { Icon } from '@/components/site/Icon'
+import { LogoMark } from '@/components/site/LogoMark'
 import { getBackofficeSession } from '@/lib/backoffice/session'
 import { AFTER_LOGIN_PATH } from '@/lib/auth/paths'
 
@@ -22,9 +22,7 @@ export default async function LoginPage() {
     <main className="grid min-h-screen place-items-center bg-cacau px-4 py-10 text-acucar">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex items-center justify-center gap-3">
-          <span className="grid h-11 w-11 place-items-center rounded-full bg-acucar/10">
-            <Icon name="whisk" className="h-6 w-6" />
-          </span>
+          <LogoMark size={52} className="ring-2 ring-acucar/15" />
           <div className="leading-tight">
             <p className="font-display text-lg">Sobremesas &amp; Companhia</p>
             <p className="text-[11px] uppercase tracking-wider text-acucar/50">Backoffice</p>

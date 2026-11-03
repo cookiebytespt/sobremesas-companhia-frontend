@@ -27,7 +27,7 @@ export function SiteHeader({ locale }: { locale: Locale }) {
     <header className="sticky top-0 z-40 bg-po">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-3 md:gap-6 md:px-8 md:py-4">
         <Link href={home} aria-label={n.home} className="min-w-0">
-          <Wordmark tagline={t.common.tagline} />
+          <Wordmark tagline={t.common.tagline} compact />
         </Link>
         <div className="flex shrink-0 items-center gap-2 sm:gap-3 xl:gap-6">
           <nav aria-label={n.label} className="hidden items-center gap-7 xl:flex">

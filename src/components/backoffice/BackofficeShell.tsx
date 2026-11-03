@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ClipboardList, Contact, ExternalLink, Images, LayoutDashboard, LogOut, Mail, Menu, Settings, Tags, Users, UtensilsCrossed, X } from 'lucide-react'
 import { useState } from 'react'
-import { Icon } from '@/components/site/Icon'
+import { LogoMark } from '@/components/site/LogoMark'
 import type { User } from '@/lib/api/types'
 import { cn } from '@/lib/utils'
 
@@ -56,9 +56,7 @@ export default function BackofficeShell({ user, children }: { user: User; childr
 
   const brand = (
     <div className="flex items-center gap-2.5">
-      <span className="grid h-9 w-9 place-items-center rounded-full bg-acucar/10 text-acucar">
-        <Icon name="whisk" className="h-5 w-5" />
-      </span>
+      <LogoMark size={36} className="ring-2 ring-acucar/15" />
       <div className="leading-tight">
         <p className="font-display text-sm">Sobremesas &amp; Companhia</p>
         <p className="text-[11px] uppercase tracking-wider text-acucar/50">Backoffice</p>

@@ -20,6 +20,15 @@ export function pageMetadata(locale: Locale, path = "/", title?: string): Metada
           },
         }
       : undefined,
-    openGraph: { title: t.common.brand, description: t.meta.description, locale: localeInfo[locale].ogLocale, type: "website" },
+    metadataBase: siteUrl ? new URL(siteUrl) : undefined,
+    // The logo card shown when the link is shared on WhatsApp, Facebook, Instagram… (src/app/opengraph-image.png).
+    openGraph: {
+      title: t.common.brand,
+      description: t.meta.description,
+      locale: localeInfo[locale].ogLocale,
+      type: "website",
+      images: [{ url: "/opengraph-image.png", width: 1200, height: 630, alt: t.common.brand }],
+    },
+    twitter: { card: "summary_large_image", images: ["/opengraph-image.png"] },
   };
 }

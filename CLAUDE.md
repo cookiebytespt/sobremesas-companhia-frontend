@@ -102,6 +102,12 @@ and store the API's tokens in two httpOnly cookies (`src/lib/auth/cookies.ts`): 
   quote**: every "Pedir orçamento" (header, hero, service cards, phone bar, CTA) opens the dedicated `/request` flow. Text under `home.*` in the dictionaries; data from
   `publicApi.occasions/services/gallery`. Without the API the page still renders (empty gallery, placeholders).
 - Business details (WhatsApp, Instagram, Facebook, location, service area, fallback service icons) in `src/content/site.ts`.
+- **Brand** (2026-11-03): the client's logo (watercolour ring, "Fabrico Caseiro" removed — a term they may not use) as a
+  round badge `public/brand/logo-mark.png` via `components/site/LogoMark.tsx` (header/footer `Wordmark`, backoffice shell,
+  login). Favicon = scalloped chocolate badge with a Young Serif "S" (`src/app/icon.svg` + `favicon.ico` 16/32/48);
+  home-screen/PWA icons = the round logo on powder blue (`src/app/apple-icon.png`, `public/brand/icon-{192,512,maskable-512}.png`,
+  `src/app/manifest.ts`); link previews = `src/app/opengraph-image.png` (also set in `lib/metadata.ts`). Full-size masters
+  (2048 px logo with/without the tagline, the favicon options) are kept outside the repo in `../brand/`.
 - `POST /api/revalidate {secret}` (`REVALIDATE_SECRET`, same as the API's) purges the public pages after backoffice edits.
 
 ### Orders, clients, contacts, Google (phase 3)
