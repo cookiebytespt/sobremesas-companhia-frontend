@@ -18,6 +18,12 @@ import { cn } from '@/lib/utils'
 
 // MARK: Client
 
+/** wa.me link for a Portuguese number written any way (9 digits → +351). */
+function whatsappFor(phone: string) {
+  const digits = phone.replace(/\D/g, '')
+  return `https://wa.me/${digits.length === 9 ? `351${digits}` : digits.replace(/^00/, '')}`
+}
+
 export function ClientCard({ order }: { order: Order }) {
   const c = order.client
   return (
@@ -28,8 +34,15 @@ export function ClientCard({ order }: { order: Order }) {
       </CardHeader>
       <CardBody className="space-y-1 text-sm">
         <p className="font-medium text-cacau">{order.contactName}</p>
-        <p><a href={`mailto:${order.contactEmail}`} className="text-cacau/80 hover:underline">{order.contactEmail}</a></p>
-        {order.contactPhone && <p><a href={`tel:${order.contactPhone}`} className="text-cacau/80 hover:underline">{order.contactPhone}</a></p>}
+        {order.contactEmail
+          ? <p><a href={`mailto:${order.contactEmail}`} className="text-cacau/80 hover:underline">{order.contactEmail}</a></p>
+          : <p className="rounded-lg bg-merengue/50 px-2 py-1 text-xs text-cacau/80">Sem e-mail — o cliente não recebe e-mails automáticos. Contacte por telefone ou WhatsApp.</p>}
+        {order.contactPhone && (
+          <p className="flex flex-wrap gap-x-3">
+            <a href={`tel:${order.contactPhone.replace(/\s/g, '')}`} className="text-cacau/80 hover:underline">{order.contactPhone}</a>
+            <a href={whatsappFor(order.contactPhone)} target="_blank" rel="noreferrer" className="text-cacau/60 hover:underline">WhatsApp</a>
+          </p>
+        )}
         <p className="pt-1 text-xs text-cacau/50">
           {c.orderCount != null && c.orderCount > 1 ? `${c.orderCount} encomendas` : 'Primeira encomenda'} · e-mails em {localeLabel[order.locale]} · origem {orderSourceLabel[order.source]}
           {c.googleLinked && ' · Google Contacts'}

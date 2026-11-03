@@ -5,7 +5,7 @@ import { pageMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = { ...pageMetadata("pt", "/request/sent", getDictionary("pt").sent.title), robots: { index: false } };
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ number?: string; email?: string }> }) {
-  const { number = "", email = "" } = await searchParams;
-  return <RequestSentPage locale="pt" number={number} email={email} />;
+export default async function Page({ searchParams }: { searchParams: Promise<{ number?: string; email?: string; phone?: string }> }) {
+  const { number = "", email = "", phone = "" } = await searchParams;
+  return <RequestSentPage locale="pt" number={number} email={email} phone={phone} />;
 }

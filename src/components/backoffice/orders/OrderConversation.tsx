@@ -28,7 +28,10 @@ export default function OrderConversation({ order }: { order: Order }) {
   const { data, isLoading, error } = useOrderMessages(order.id)
   const { sendMessage } = useOrderMutations(order.id)
   const [body, setBody] = useState('')
-  const [internal, setInternal] = useState(false)
+  // Phone-only clients get no e-mail: the composer only writes internal notes (log the call / WhatsApp here).
+  const canEmail = Boolean(order.contactEmail)
+  const [internalChoice, setInternal] = useState(false)
+  const internal = internalChoice || !canEmail
   const [photos, setPhotos] = useState<Upload[]>([])
   const [attaching, setAttaching] = useState(false)
 
@@ -53,9 +56,9 @@ export default function OrderConversation({ order }: { order: Order }) {
 
       <div className={cn('rounded-2xl border p-3', internal ? 'border-merengue bg-merengue/40' : 'border-linha bg-acucar')}>
         <div className="mb-2 flex items-center gap-2 text-xs">
-          <button type="button" onClick={() => setInternal(false)} className={cn('rounded-full px-3 py-1', !internal ? 'bg-cacau text-acucar' : 'text-cacau/60 hover:bg-creme')}>E-mail ao cliente</button>
+          {canEmail && <button type="button" onClick={() => setInternal(false)} className={cn('rounded-full px-3 py-1', !internal ? 'bg-cacau text-acucar' : 'text-cacau/60 hover:bg-creme')}>E-mail ao cliente</button>}
           <button type="button" onClick={() => setInternal(true)} className={cn('rounded-full px-3 py-1', internal ? 'bg-cacau text-acucar' : 'text-cacau/60 hover:bg-creme')}><Lock className="mr-1 inline h-3 w-3" />Nota interna</button>
-          <span className="ml-auto text-cacau/40">{internal ? 'Só a equipa vê.' : `Para ${order.contactEmail}`}</span>
+          <span className="ml-auto text-cacau/40">{!canEmail ? 'Cliente sem e-mail — registe aqui as chamadas e mensagens.' : internal ? 'Só a equipa vê.' : `Para ${order.contactEmail}`}</span>
         </div>
         <Textarea rows={4} value={body} onChange={(e) => setBody(e.target.value)} placeholder={internal ? 'Apontamento para a equipa…' : 'Escreva como num e-mail; a saudação e a assinatura são acrescentadas.'} />
         {!internal && attaching && (

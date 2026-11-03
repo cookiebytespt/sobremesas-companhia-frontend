@@ -1,11 +1,12 @@
 import { forwardRef, type InputHTMLAttributes, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react'
 import { cn } from '@/lib/utils'
 
+// text-base below sm: iOS zooms into any field under 16px.
 const base =
-  'w-full rounded-lg border border-linha bg-white px-3 py-2 text-sm text-cacau placeholder:text-cacau/40 outline-none transition-colors focus:border-cacau focus:ring-2 focus:ring-cacau/15 disabled:bg-creme disabled:text-cacau/50'
+  'w-full rounded-lg border border-linha bg-white px-3 py-2 text-base sm:text-sm text-cacau placeholder:text-cacau/40 outline-none transition-colors focus:border-cacau focus:ring-2 focus:ring-cacau/15 disabled:bg-creme disabled:text-cacau/50'
 
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(function Input({ className, ...props }, ref) {
-  return <input ref={ref} className={cn(base, 'h-10', className)} {...props} />
+  return <input ref={ref} className={cn(base, 'h-11 sm:h-10', className)} {...props} />
 })
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<HTMLTextAreaElement>>(function Textarea(
@@ -20,7 +21,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSel
   ref
 ) {
   return (
-    <select ref={ref} className={cn(base, 'h-10 pr-8', className)} {...props}>
+    <select ref={ref} className={cn(base, 'h-11 sm:h-10 pr-8', className)} {...props}>
       {children}
     </select>
   )

@@ -51,7 +51,7 @@ const columns: ColumnDef<OrderListItem, unknown>[] = [
     cell: ({ row }) => (
       <div className="min-w-0">
         <p className="truncate font-medium text-cacau">{row.original.clientName}</p>
-        <p className="truncate text-xs text-cacau/50">{row.original.clientEmail}</p>
+        <p className="truncate text-xs text-cacau/50">{row.original.clientEmail ?? row.original.clientPhone}</p>
       </div>
     ),
   },

@@ -49,6 +49,12 @@ const paths: Record<string, React.ReactNode> = {
       <circle cx="16" cy="7.5" r="1.6" />
     </>
   ),
+  cake: (
+    <>
+      <path d="M4 20h16M5 20v-5h14v5M7 15v-4h10v4" />
+      <path d="M5 17.5c2.3 1 4.7-1 7 0s4.7 1 7 0M12 11V8M12 5.5c-.8-.8 0-2.5 0-2.5s.8 1.7 0 2.5z" />
+    </>
+  ),
   platter: (
     <>
       <path d="M3 17h18M5 17a7 7 0 0114 0M12 10V8M10 8h4" />

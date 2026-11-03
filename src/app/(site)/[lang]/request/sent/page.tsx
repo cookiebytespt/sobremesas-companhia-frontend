@@ -4,7 +4,7 @@ import { RequestSentPage } from "@/components/site/pages/RequestSentPage";
 import { getDictionary, isLocale } from "@/i18n";
 import { pageMetadata } from "@/lib/metadata";
 
-type Props = { params: Promise<{ lang: string }>; searchParams: Promise<{ number?: string; email?: string }> };
+type Props = { params: Promise<{ lang: string }>; searchParams: Promise<{ number?: string; email?: string; phone?: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang } = await params;
@@ -14,6 +14,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function Page({ params, searchParams }: Props) {
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
-  const { number = "", email = "" } = await searchParams;
-  return <RequestSentPage locale={lang} number={number} email={email} />;
+  const { number = "", email = "", phone = "" } = await searchParams;
+  return <RequestSentPage locale={lang} number={number} email={email} phone={phone} />;
 }

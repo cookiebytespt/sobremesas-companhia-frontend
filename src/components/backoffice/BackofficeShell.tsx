@@ -31,7 +31,6 @@ export default function BackofficeShell({ user, children }: { user: User; childr
   const [open, setOpen] = useState(false)
   const displayName = user.name ?? user.email ?? 'Admin'
   const initial = displayName[0]?.toUpperCase() ?? 'A'
-  const landing = process.env.NEXT_PUBLIC_LANDING_URL ?? 'https://sobremesasecompanhia.pt'
 
   const nav = (
     <nav className="flex flex-col gap-0.5 px-3">
@@ -73,7 +72,7 @@ export default function BackofficeShell({ user, children }: { user: User; childr
         <div className="flex h-16 items-center border-b border-acucar/10 px-5">{brand}</div>
         <div className="flex-1 overflow-y-auto py-4">{nav}</div>
         <div className="border-t border-acucar/10 p-3">
-          <a href={landing} target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-acucar/70 hover:bg-acucar/5 hover:text-acucar">
+          <a href="/" target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-acucar/70 hover:bg-acucar/5 hover:text-acucar">
             <ExternalLink className="h-4 w-4" aria-hidden /> Ver site
           </a>
         </div>

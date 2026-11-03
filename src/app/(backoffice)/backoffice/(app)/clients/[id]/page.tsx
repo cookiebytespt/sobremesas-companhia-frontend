@@ -35,13 +35,13 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
   useEffect(() => {
     if (!data) return
     const c = data.client
-    setF({ name: c.name, email: c.email, phone: c.phone ?? '', locale: c.locale, notes: c.notes ?? '' })
+    setF({ name: c.name, email: c.email ?? '', phone: c.phone ?? '', locale: c.locale, notes: c.notes ?? '' })
   }, [data])
 
   if (error) return <p className="text-sm text-[#b4534b]">{apiErrorMessage(error)}</p>
   if (isLoading || !data) return <div className="space-y-4"><Skeleton className="h-8 w-64" /><Skeleton className="h-40 w-full" /></div>
   const { client, orders } = data
-  const dirty = f.name !== client.name || f.email !== client.email || f.phone !== (client.phone ?? '') || f.locale !== client.locale || f.notes !== (client.notes ?? '')
+  const dirty = f.name !== client.name || f.email !== (client.email ?? '') || f.phone !== (client.phone ?? '') || f.locale !== client.locale || f.notes !== (client.notes ?? '')
 
   const save = async () => {
     try {
@@ -58,7 +58,7 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
       <Link href="/backoffice/clients" className="mb-4 inline-flex items-center gap-1 text-sm text-cacau/60 hover:text-cacau"><ArrowLeft className="h-4 w-4" aria-hidden /> Clientes</Link>
       <PageHeader
         title={client.name}
-        description={client.email}
+        description={[client.email, client.phone].filter(Boolean).join(' · ') || undefined}
         actions={
           <div className="flex flex-wrap gap-2">
             <Button onClick={() => setOrdering(true)}><Plus className="h-4 w-4" aria-hidden /> Registar encomenda</Button>
@@ -109,7 +109,7 @@ export default function ClientDetailPage({ params }: { params: Promise<{ id: str
         </Card>
       </div>
 
-      <NewOrderDialog open={ordering} onClose={() => setOrdering(false)} clientId={client.id} clientName={client.name} clientEmail={client.email} onCreated={(o) => router.push(`/backoffice/orders/${o.id}`)} />
+      <NewOrderDialog open={ordering} onClose={() => setOrdering(false)} clientId={client.id} clientName={client.name} clientEmail={client.email ?? client.phone ?? undefined} onCreated={(o) => router.push(`/backoffice/orders/${o.id}`)} />
       <MergeDialog open={merging} onClose={() => setMerging(false)} keep={client} onMerge={async (mergeId) => { try { await merge.mutateAsync({ keepId: client.id, mergeId }); toast.success('Clientes juntos.'); setMerging(false) } catch (err) { toast.error(apiErrorMessage(err)) } }} />
       <ConfirmDialog open={confirmDelete} onClose={() => setConfirmDelete(false)} onConfirm={destroy} title="Apagar cliente?" description="Só é possível sem encomendas. Esta ação não pode ser anulada." confirmLabel="Apagar" variant="danger" loading={remove.isPending} />
     </>

@@ -61,7 +61,7 @@ export default function NewOrderDialog({ open, onClose, onCreated, clientId, cli
       footer={
         <>
           <Button variant="secondary" onClick={close} disabled={create.isPending}>Cancelar</Button>
-          <Button type="submit" form="new-order-form" loading={create.isPending} disabled={!clientId && (!name.trim() || !email.trim())}>Registar</Button>
+          <Button type="submit" form="new-order-form" loading={create.isPending} disabled={!clientId && (!name.trim() || (!email.trim() && !phone.trim()))}>Registar</Button>
         </>
       }
     >
@@ -69,7 +69,7 @@ export default function NewOrderDialog({ open, onClose, onCreated, clientId, cli
         {!clientId && (
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Nome" htmlFor="no-name"><Input id="no-name" required autoFocus value={name} onChange={(e) => setName(e.target.value)} /></Field>
-            <Field label="E-mail" htmlFor="no-email" hint="É para aqui que vão as confirmações."><Input id="no-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></Field>
+            <Field label="E-mail" htmlFor="no-email" hint="Para as confirmações por e-mail. Sem e-mail, basta o telemóvel."><Input id="no-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></Field>
             <Field label="Telemóvel" htmlFor="no-phone"><Input id="no-phone" value={phone} onChange={(e) => setPhone(e.target.value)} /></Field>
             <Field label="Origem" htmlFor="no-source">
               <Select id="no-source" value={source} onChange={(e) => setSource(e.target.value as OrderSource)}>

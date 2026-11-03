@@ -30,10 +30,10 @@ const columns: ColumnDef<Client, unknown>[] = [
     id: 'client', header: 'Cliente',
     cell: ({ row }) => (
       <div className="flex items-center gap-3">
-        <Avatar name={row.original.name} email={row.original.email} picture={null} size="sm" />
+        <Avatar name={row.original.name} email={row.original.email ?? row.original.phone ?? ''} picture={null} size="sm" />
         <div className="min-w-0">
           <p className="truncate font-medium text-cacau">{row.original.name}</p>
-          <p className="truncate text-xs text-cacau/50">{row.original.email}</p>
+          <p className="truncate text-xs text-cacau/50">{row.original.email ?? row.original.phone}</p>
         </div>
       </div>
     ),
@@ -92,7 +92,7 @@ function NewClientDialog({ open, onClose, onCreated }: { open: boolean; onClose:
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const c = await create.mutateAsync({ name: name.trim(), email: email.trim(), phone: phone.trim() || undefined })
+      const c = await create.mutateAsync({ name: name.trim(), email: email.trim() || undefined, phone: phone.trim() || undefined })
       toast.success('Cliente criado.')
       onCreated(c)
       onClose()
@@ -101,10 +101,10 @@ function NewClientDialog({ open, onClose, onCreated }: { open: boolean; onClose:
     }
   }
   return (
-    <Modal open={open} onClose={onClose} title="Novo cliente" footer={<><Button variant="secondary" onClick={onClose}>Cancelar</Button><Button type="submit" form="new-client" loading={create.isPending} disabled={!name.trim() || !email.trim()}>Criar</Button></>}>
+    <Modal open={open} onClose={onClose} title="Novo cliente" footer={<><Button variant="secondary" onClick={onClose}>Cancelar</Button><Button type="submit" form="new-client" loading={create.isPending} disabled={!name.trim() || (!email.trim() && !phone.trim())}>Criar</Button></>}>
       <form id="new-client" onSubmit={submit} className="space-y-4">
         <Field label="Nome" htmlFor="nc-name"><Input id="nc-name" required autoFocus value={name} onChange={(e) => setName(e.target.value)} /></Field>
-        <Field label="E-mail" htmlFor="nc-email"><Input id="nc-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></Field>
+        <Field label="E-mail" htmlFor="nc-email" hint="E-mail ou telemóvel (pelo menos um)."><Input id="nc-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></Field>
         <Field label="Telemóvel" htmlFor="nc-phone"><Input id="nc-phone" value={phone} onChange={(e) => setPhone(e.target.value)} /></Field>
       </form>
     </Modal>

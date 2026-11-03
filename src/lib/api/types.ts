@@ -227,7 +227,8 @@ export interface OrderItemInput {
 
 export interface PublicOrderInput {
   name: string
-  email: string
+  /** At least one of email / phone. Phone-only orders are tracked the same, without automatic e-mails. */
+  email?: string
   phone?: string
   occasionId?: string
   occasionOther?: string
@@ -251,7 +252,8 @@ export interface PublicOrderInput {
 
 export interface PublicOrderCreated {
   number: string
-  email: string
+  email: string | null
+  phone: string | null
 }
 
 export interface ContactInput {
@@ -276,7 +278,8 @@ export type MessageChannel = 'platform' | 'gmail' | 'system'
 export interface Client {
   id: string
   name: string
-  email: string
+  /** Null for phone-only clients. */
+  email: string | null
   phone: string | null
   locale: Locale
   notes: string | null
@@ -340,7 +343,8 @@ export interface OrderListItem {
   paymentStatus: PaymentStatus
   clientId: string
   clientName: string
-  clientEmail: string
+  clientEmail: string | null
+  clientPhone: string | null
   occasionName: string | null
   eventDate: string | null
   eventTime: string | null
@@ -360,7 +364,7 @@ export interface Order {
   allowedTransitions: OrderStatus[]
   client: Client
   contactName: string
-  contactEmail: string
+  contactEmail: string | null
   contactPhone: string | null
   occasionId: string | null
   occasionName: string | null

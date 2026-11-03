@@ -1,24 +1,39 @@
-import Link from 'next/link'
 import { getDictionary, type Locale } from '@/i18n'
+import { publicApi } from '@/lib/api/public'
 import { localizedPath } from '@/lib/locale'
-import { Icon } from '../Icon'
+import { Area } from '../home/Area'
+import { Creations } from '../home/Creations'
+import { Hero } from '../home/Hero'
+import { MobileActionBar } from '../home/MobileActionBar'
+import { QuoteCta } from '../home/QuoteCta'
+import { Services } from '../home/Services'
+import { Steps } from '../home/Steps'
 
-/** Home of the platform: points at the request form and back to the presentation site. */
-export function HomePage({ locale }: { locale: Locale }) {
-  const t = getDictionary(locale)
-  const landing = process.env.NEXT_PUBLIC_LANDING_URL ?? 'https://sobremesasecompanhia.pt'
+/**
+ * The website's home page (it replaces the old presentation site at sobremesasecompanhia.pt).
+ * Fixed text comes from the dictionaries; occasions, services, menu items and photos from the API,
+ * so the backoffice edits what visitors see.
+ */
+export async function HomePage({ locale }: { locale: Locale }) {
+  const t = getDictionary(locale).home
+  const [occasions, services, gallery, hero] = await Promise.all([
+    publicApi.occasions(locale),
+    publicApi.services(locale),
+    publicApi.gallery(locale, 'gallery'),
+    publicApi.gallery(locale, 'hero'),
+  ])
+  // No hero photos chosen yet: borrow the featured (or first) gallery photos.
+  const heroPhotos = hero.length >= 3 ? hero : [...gallery.filter((p) => p.featured), ...gallery.filter((p) => !p.featured)].slice(0, 3)
+
   return (
-    <section className="mx-auto max-w-2xl py-6 text-center">
-      <span className="scallop-badge mx-auto grid h-20 w-20 place-items-center bg-po text-cacau">
-        <Icon name="cupcake" className="h-9 w-9" />
-      </span>
-      <p className="mt-6 text-xs font-semibold uppercase tracking-[0.2em] text-po-fundo">{t.home.kicker}</p>
-      <h1 className="mt-2 font-display text-3xl tracking-tight text-cacau sm:text-4xl">{t.home.title}</h1>
-      <p className="mx-auto mt-4 max-w-xl text-cacau-suave">{t.home.intro}</p>
-      <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-        <Link href={localizedPath(locale, '/request')} className="rounded-full bg-po px-5 py-2 text-sm font-medium text-cacau hover:bg-po-fundo/40">{t.home.request}</Link>
-        <a href={landing} className="rounded-full bg-cacau px-5 py-2 text-sm font-medium text-acucar hover:bg-cacau-suave">{t.home.landing}</a>
-      </div>
-    </section>
+    <>
+      <Hero t={t.hero} photos={heroPhotos} requestHref={localizedPath(locale, '/request')} workHref="#work" />
+      <Creations t={t.creations} lightbox={t.lightbox} occasions={occasions} photos={gallery} />
+      <Services t={t.services} services={services} locale={locale} />
+      <Steps t={t.steps} />
+      <Area t={t.area} />
+      <QuoteCta t={t.quote} locale={locale} />
+      <MobileActionBar quote={t.sticky.quote} whatsapp={t.sticky.whatsapp} requestHref={localizedPath(locale, '/request')} />
+    </>
   )
 }

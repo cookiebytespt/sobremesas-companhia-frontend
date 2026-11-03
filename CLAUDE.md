@@ -18,9 +18,10 @@ on `http://localhost:8080`, then `pnpm dev`. Without the API the public pages re
 ## What this is
 
 **Next.js 16 App Router** (TypeScript, Tailwind CSS 4) — the Sobremesas & Companhia **platform** at
-`dev.sobremesasecompanhia.pt`: public order form (phase 3) and backoffice `/backoffice`. Clients have no accounts — they
-are reached by e-mail; only staff sign in. The presentation
-site is a separate static project (`../landing`, GitHub Pages at `sobremesasecompanhia.pt`). All data comes from the
+`dev.sobremesasecompanhia.pt`, and **the business's website** — it replaces the static landing (`../landing`, GitHub
+Pages at `sobremesasecompanhia.pt`, retired once the domain moves here; rev. 4 of the plan): home page, public order
+form, contact, privacy, and the backoffice `/backoffice`. Nothing on the public side links to the old site. Clients have
+no accounts — they are reached by e-mail, or by phone/WhatsApp when they leave only a number; only staff sign in. All data comes from the
 **Vapor API** in `../backend` (see its `CLAUDE.md` and `Public/openapi.yaml`); this app has no database. Design document:
 `../docs/PLATFORM-PLAN.md`. Plumbing is derived from `CookieBytes/Brindigrafica/frontend`; the look from `../landing`.
 
@@ -79,14 +80,41 @@ and store the API's tokens in two httpOnly cookies (`src/lib/auth/cookies.ts`): 
   with data, live sessions and access card; `InviteUserDialog` creates the account and shows the login link
   (`InviteResult.loginUrl`). No role picker — `UserRole` is only `admin` today.
 
+### The website (rev. 4)
+
+- **Phone first** — most clients come from their phones. Public controls are `components/site/fields.tsx` (`SiteInput`,
+  `SiteSelect`, `SiteTextarea`, `SiteField`, `Chip`, `Tile`): ≥48 px targets, 16 px text (no iOS zoom; `ui/input` is also
+  16 px below `sm`). Sticky header, `viewport` theme colour + `viewport-fit=cover` with `env(safe-area-inset-*)` paddings,
+  `MobileActionBar` (WhatsApp + "Pedir orçamento" → `/request`, phones only, after the hero, hidden over `#quote`), gallery `Lightbox`
+  (swipe, Esc, arrows, swipe down to close), WhatsApp/call buttons in the menu and on `/contact`.
+- **Contacts**: a client gives a **mobile number or an e-mail** (at least one, `lib/site/contact.ts`: `isPhone`,
+  `isEmail`). Every request is an order in the backoffice either way; phone-only orders get no automatic
+  e-mails (the API skips them) and the backoffice says so (ClientCard banner + WhatsApp link, Conversa = internal notes).
+- `components/site/SiteFrame.tsx` (header + footer; `PageContainer` for the narrow pages), `SiteHeader` (section links
+  `/#work`, `/#services`, `/#how-it-works`, `/#where`, `/contact`, language switcher, "Pedir orçamento" → `/request`;
+  `MobileMenu` below `xl`), `SiteFooter` (Instagram, Facebook, WhatsApp, contact, privacy).
+- Home = `components/site/pages/HomePage.tsx` (server, `revalidate = 300` on the routes) → `components/site/home/`:
+  `Hero` (gallery photos with placement `hero`, falling back to featured/first gallery photos), `Creations` (gallery +
+  occasion filter, 12 at a time), `Services` (description + menu chips, link `/request?service=<slug>`), `Steps`, `Area`,
+  `QuoteCta` (`#quote`, blush band, no form: "Pedir orçamento" → `/request`, WhatsApp, Contactos). Section colours follow
+  the old site: hero `po`, gallery/services/area on `acucar`, how-to-order on the cream `#fbf6f1` band, quote on `merengue`,
+  footer `cacau`. **One way to ask for a
+  quote**: every "Pedir orçamento" (header, hero, service cards, phone bar, CTA) opens the dedicated `/request` flow. Text under `home.*` in the dictionaries; data from
+  `publicApi.occasions/services/gallery`. Without the API the page still renders (empty gallery, placeholders).
+- Business details (WhatsApp, Instagram, Facebook, location, service area, fallback service icons) in `src/content/site.ts`.
+- `POST /api/revalidate {secret}` (`REVALIDATE_SECRET`, same as the API's) purges the public pages after backoffice edits.
+
 ### Orders, clients, contacts, Google (phase 3)
 
-- **Public**: `/request` (+ `?occasion=<slug>` from the landing) → `components/site/pages/RequestPage.tsx` loads
-  occasions/services server-side (`lib/api/public.ts`, 5-min revalidate) and renders `RequestForm.tsx`: event, services
-  as chips → items with optional quantities and an "Outro" line, delivery (+address), EU-14 allergens (`ALLERGENS`),
-  notes, photos (`PhotoDropzone kind="request"` — the BFF mints the guest token on the first upload), contacts, honeypot
-  `website`. Submits `api.orders.create` → `/request/sent?number=&email=`. `/contact` → `ContactForm` → `api.contact.send`.
-  Strings under `request`, `sent`, `contact` in the dictionaries. `NEXT_PUBLIC_WHATSAPP_URL` shows the WhatsApp link.
+- **Public**: `/request` (+ `?occasion=<slug>` / `?service=<slug>` preselect from the home page) → `components/site/pages/RequestPage.tsx` loads
+  occasions/services server-side (`lib/api/public.ts`, 5-min revalidate) and renders `RequestForm.tsx`, a **4-step flow**
+  (event: occasion tiles + date/time/guests · what: service tiles → items with quantity steppers and an "Outro" line ·
+  details: delivery (+address), EU-14 allergens, notes, photos (`PhotoDropzone kind="request"`, guest token from the BFF) ·
+  contact: name + phone and/or e-mail, summary with "Alterar"). Sticky Back/Continue bar on phones, the browser back
+  button steps back (`history.pushState`), the draft lives in `sessionStorage` (`sc:request-draft`). Honeypot `website`.
+  Submits `api.orders.create` → `/request/sent?number=&email=&phone=` (which offers "Enviar também por WhatsApp" with the
+  number pre-filled). `/contact` → `ContactForm` → `api.contact.send`.
+  Strings under `request`, `sent`, `contact` in the dictionaries. The WhatsApp link comes from `src/content/site.ts`.
 - **Encomendas** `/backoffice/orders` (tabs by status + "por ler", payment filter, search; `NewOrderDialog` registers
   offline orders) and `/backoffice/orders/[id]`: header with the API's `allowedTransitions` as buttons (note + "avisar o
   cliente" switch in a `ConfirmDialog`), tabs *Detalhes* (`RequestCard`, `OrderItemsEditor`, `DetailsCard` — one PATCH with
@@ -133,5 +161,5 @@ ConfirmDialog, Toaster, InviteUserDialog, NewOrderDialog, LoginForm, UserBits, L
 
 Phase 0–2: scaffold, BFF, backoffice dashboard, team, gallery, services, occasions. **Phase 3 done (2026-10-30)**: own
 sign-in (Auth0 and the client area removed), public `/request` + `/contact`, Encomendas with the e-mail conversation,
-Clientes, Contactos, Definições → Google. Next: inbound e-mail sync + inbox + Google Contacts (4), calendar (5), landing
-integration (6), hardening + passkeys (7).
+Clientes, Contactos, Definições → Google. **2026-11-03**: the landing's content ported — the platform is the website.
+Next: inbound e-mail sync + inbox + Google Contacts (4), calendar (5), domain switch (6), hardening + passkeys (7).

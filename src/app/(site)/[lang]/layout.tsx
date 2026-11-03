@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { Document } from "@/components/site/Document";
 import { SiteFrame } from "@/components/site/SiteFrame";
@@ -6,6 +6,9 @@ import { defaultLocale, isLocale, locales } from "@/i18n";
 import { pageMetadata } from "@/lib/metadata";
 
 type Props = { params: Promise<{ lang: string }> };
+
+// Phones: the browser bar takes the hero's powder blue; content can use the notch/home-bar areas via env(safe-area-inset-*).
+export const viewport: Viewport = { themeColor: "#d6e5f0", viewportFit: "cover" };
 
 export const dynamicParams = false;
 
