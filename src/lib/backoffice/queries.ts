@@ -7,7 +7,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { backofficeApi } from '@/lib/api/backoffice'
-import type { AgendaQuery, AdminCreateOrderInput, AdminCreateUserInput, AdminGalleryQuery, AdminOrderListQuery, AdminOrderUpdateInput, AdminUserListQuery, AdminUserUpdateInput, ClientInput, ClientListQuery, GalleryPhotoInput, GoogleSettingsInput, NewMessageInput, OccasionInput, OfferItemInput, OrderItemInput, PaymentInput, ProposalInput, ServiceInput, TransitionInput } from '@/lib/api/types'
+import type { AgendaQuery, AdminCreateOrderInput, AdminCreateUserInput, AdminGalleryQuery, AdminOrderListQuery, AdminOrderUpdateInput, AdminUserListQuery, AdminUserUpdateInput, ClientInput, ClientListQuery, ContactsImportInput, ConvertInboxInput, GalleryPhotoInput, InboxListQuery, GoogleSettingsInput, NewMessageInput, OccasionInput, OfferItemInput, OrderItemInput, PaymentInput, ProposalInput, ServiceInput, TransitionInput } from '@/lib/api/types'
 
 export const keys = {
   dashboard: ['backoffice', 'dashboard'] as const,
@@ -35,6 +35,11 @@ export const keys = {
     all: ['backoffice', 'clients'] as const,
     list: (query: ClientListQuery) => ['backoffice', 'clients', 'list', query] as const,
     detail: (id: string) => ['backoffice', 'clients', 'detail', id] as const,
+  },
+  inbox: {
+    all: ['backoffice', 'inbox'] as const,
+    list: (query: InboxListQuery) => ['backoffice', 'inbox', 'list', query] as const,
+    detail: (id: string) => ['backoffice', 'inbox', 'detail', id] as const,
   },
   contacts: {
     all: ['backoffice', 'contacts'] as const,
@@ -223,6 +228,7 @@ export function useClientMutations(id?: string) {
     merge: useMutation({ mutationFn: (v: { keepId: string; mergeId: string }) => backofficeApi.clients.merge(v.keepId, v.mergeId), onSuccess: done }),
     remove: useMutation({ mutationFn: () => backofficeApi.clients.remove(id!), onSuccess: done }),
     pushToGoogle: useMutation({ mutationFn: () => backofficeApi.clients.pushToGoogle(id!), onSuccess: done }),
+    importFromGoogle: useMutation({ mutationFn: (input: ContactsImportInput) => backofficeApi.clients.importFromGoogle(input), onSuccess: done }),
     unlinkGoogle: useMutation({ mutationFn: () => backofficeApi.clients.unlinkGoogle(id!), onSuccess: done }),
   }
 }
@@ -240,6 +246,31 @@ export function useContactMutations() {
     setHandled: useMutation({ mutationFn: (v: { id: string; handled: boolean }) => backofficeApi.contacts.setHandled(v.id, v.handled), onSuccess: done }),
     convert: useMutation({ mutationFn: (id: string) => backofficeApi.contacts.convert(id), onSuccess: done }),
     remove: useMutation({ mutationFn: (id: string) => backofficeApi.contacts.remove(id), onSuccess: done }),
+  }
+}
+
+// MARK: Inbox
+
+export function useInbox(query: InboxListQuery) {
+  return useQuery({ queryKey: keys.inbox.list(query), queryFn: () => backofficeApi.inbox.list({ ...query, limit: 20 }), placeholderData: (prev) => prev, refetchInterval: 60_000 })
+}
+export function useInboxItem(id: string | null) {
+  return useQuery({ queryKey: keys.inbox.detail(id ?? ''), queryFn: () => backofficeApi.inbox.get(id!), enabled: Boolean(id) })
+}
+export function useInboxMutations() {
+  const qc = useQueryClient()
+  const done = () => {
+    void qc.invalidateQueries({ queryKey: keys.inbox.all })
+    void qc.invalidateQueries({ queryKey: keys.dashboard })
+    void qc.invalidateQueries({ queryKey: keys.orders.all })
+    void qc.invalidateQueries({ queryKey: keys.clients.all })
+  }
+  return {
+    assign: useMutation({ mutationFn: (v: { id: string; orderId: string }) => backofficeApi.inbox.assign(v.id, v.orderId), onSuccess: done }),
+    convert: useMutation({ mutationFn: (v: { id: string; input: ConvertInboxInput }) => backofficeApi.inbox.convert(v.id, v.input), onSuccess: done }),
+    ignore: useMutation({ mutationFn: (id: string) => backofficeApi.inbox.ignore(id), onSuccess: done }),
+    reopen: useMutation({ mutationFn: (id: string) => backofficeApi.inbox.reopen(id), onSuccess: done }),
+    syncGmail: useMutation({ mutationFn: () => backofficeApi.google.syncGmail(), onSuccess: () => { done(); void qc.invalidateQueries({ queryKey: keys.google }) } }),
   }
 }
 

@@ -95,6 +95,7 @@ export interface DashboardSummary {
   clients: { total: number }
   contacts: { unhandled: number }
   email: { pending: number; googleConnected: boolean }
+  inbox: { open: number }
   team: { active: number; invitedPending: number }
   uploads: { unattached: number }
   gallery: { published: number; unpublished: number }
@@ -271,7 +272,7 @@ export const ALLERGENS = ['glúten', 'crustáceos', 'ovos', 'peixe', 'amendoins'
 
 export type OrderStatus = 'new' | 'reviewing' | 'proposal_sent' | 'confirmed' | 'completed' | 'declined' | 'cancelled'
 export type PaymentStatus = 'pending' | 'deposit_paid' | 'paid'
-export type OrderSource = 'web' | 'whatsapp' | 'instagram' | 'phone' | 'in_person'
+export type OrderSource = 'web' | 'whatsapp' | 'instagram' | 'phone' | 'in_person' | 'email'
 export type MessageDirection = 'in' | 'out'
 export type MessageChannel = 'platform' | 'gmail' | 'system'
 
@@ -333,7 +334,10 @@ export interface OrderMessage {
   authorName: string | null
   subject: string | null
   bodyText: string
+  /** Inbound e-mail as received (HTML), when it had one. */
+  bodyHtml: string | null
   fromEmail: string
+  fromName: string | null
   toEmails: string[]
   sentAt: string | null
   receivedAt: string | null
@@ -514,6 +518,47 @@ export interface GoogleStatus {
   calendarFailed: number
   calendarLastError: string | null
 }
+
+export type InboxStatus = 'open' | 'assigned' | 'converted' | 'ignored'
+
+/** An e-mail from the connected mailbox that matched no order (`GET /admin/inbox`). */
+export interface InboxItem {
+  id: string
+  status: InboxStatus
+  fromName: string | null
+  fromEmail: string
+  toEmails: string[]
+  subject: string | null
+  bodyText: string
+  /** Detail call only. */
+  bodyHtml: string | null
+  receivedAt: string | null
+  handledAt: string | null
+  attachments: Upload[]
+  orderId: string | null
+  orderNumber: string | null
+  /** Detail call only: the sender's client record and their open orders. */
+  client: Client | null
+  openOrders: OrderListItem[]
+}
+
+export interface InboxListQuery { status?: 'open' | 'ignored' | 'handled' | 'all'; q?: string; page?: number; limit?: number }
+
+export interface ConvertInboxInput {
+  name?: string
+  phone?: string
+  occasionId?: string
+  occasionOther?: string
+  eventDate?: string
+  eventTime?: string
+  guests?: number
+  internalNotes?: string
+  notifyClient?: boolean
+}
+
+export interface GmailSyncResult { checked: number; onOrders: number; inbox: number; skipped: number; failed: number }
+export interface ContactsImportInput { onlyLabel?: boolean; dryRun?: boolean }
+export interface ContactsImportResult { total: number; skipped: number; created: number; linked: number; alreadyLinked: number; dryRun: boolean }
 
 export interface GoogleCalendar { id: string; name: string; primary: boolean; writable: boolean; color: string | null }
 export interface CalendarSyncResult { written: number; removed: number; failed: number }

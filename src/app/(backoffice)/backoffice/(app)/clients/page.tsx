@@ -3,8 +3,9 @@
 import { Suspense, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { ColumnDef } from '@tanstack/react-table'
-import { UserPlus } from 'lucide-react'
+import { CloudDownload, UserPlus } from 'lucide-react'
 import DataTable from '@/components/backoffice/DataTable'
+import ImportContactsDialog from '@/components/backoffice/ImportContactsDialog'
 import PageHeader from '@/components/backoffice/PageHeader'
 import SearchInput from '@/components/backoffice/SearchInput'
 import Tabs from '@/components/backoffice/Tabs'
@@ -55,13 +56,14 @@ function ClientsList() {
   const query = useMemo(() => ({ q, source: filter === 'all' ? undefined : filter, page, limit: 20 }), [q, filter, page])
   const { data, isLoading, isFetching, error } = useClients(query)
   const [creating, setCreating] = useState(false)
+  const [importing, setImporting] = useState(false)
 
   return (
     <>
       <PageHeader
         title="Clientes"
         description="Toda a gente que encomendou ou que importaram dos Google Contacts. Um cliente por e-mail — as respostas e as encomendas juntam-se pela morada de e-mail."
-        actions={<Button onClick={() => setCreating(true)}><UserPlus className="h-4 w-4" aria-hidden /> Novo cliente</Button>}
+        actions={<><Button variant="secondary" onClick={() => setImporting(true)}><CloudDownload className="h-4 w-4" aria-hidden /> Importar do Google</Button><Button onClick={() => setCreating(true)}><UserPlus className="h-4 w-4" aria-hidden /> Novo cliente</Button></>}
       />
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <Tabs<Filter> items={[{ key: 'all', label: 'Todos' }, { key: 'order', label: 'Com encomenda' }, { key: 'google', label: 'Do Google' }, { key: 'manual', label: 'Manuais' }]} value={filter} onChange={(f) => set({ source: f === 'all' ? undefined : f, page: undefined })} />
@@ -79,6 +81,7 @@ function ClientsList() {
         onRowClick={(c) => router.push(`/backoffice/clients/${c.id}`)}
       />
       <NewClientDialog open={creating} onClose={() => setCreating(false)} onCreated={(c) => router.push(`/backoffice/clients/${c.id}`)} />
+      <ImportContactsDialog open={importing} onClose={() => setImporting(false)} />
     </>
   )
 }

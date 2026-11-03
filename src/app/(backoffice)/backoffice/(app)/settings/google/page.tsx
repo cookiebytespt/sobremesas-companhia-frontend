@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { CalendarDays, CheckCircle2, Link2, Link2Off, Mail, RefreshCw } from 'lucide-react'
+import { CalendarDays, CheckCircle2, Inbox, Link2, Link2Off, Mail, RefreshCw } from 'lucide-react'
 import ConfirmDialog from '@/components/backoffice/ConfirmDialog'
 import PageHeader from '@/components/backoffice/PageHeader'
 import { useToast } from '@/components/backoffice/Toaster'
@@ -13,12 +13,13 @@ import { Field, Input, Select } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { backofficeApi } from '@/lib/api/backoffice'
 import { apiErrorMessage } from '@/lib/api/errors'
-import { useGoogleCalendars, useGoogleMutations, useGoogleStatus } from '@/lib/backoffice/queries'
+import { useGoogleCalendars, useGoogleMutations, useGoogleStatus, useInboxMutations } from '@/lib/backoffice/queries'
 import { formatDate } from '@/lib/labels'
 
 export const dynamic = 'force-dynamic'
 
 const CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar.events'
+const GMAIL_SCOPE = 'https://www.googleapis.com/auth/gmail.modify'
 
 const scopeLabel: Record<string, string> = {
   'https://www.googleapis.com/auth/gmail.modify': 'Gmail (enviar e ler as conversas)',
@@ -33,6 +34,8 @@ function GoogleSettings() {
   const { data, isLoading, error } = useGoogleStatus()
   const { disconnect, settings, retryEmails, resyncCalendar } = useGoogleMutations()
   const calendarAccess = !!data?.connected && data.scopes.includes(CALENDAR_SCOPE)
+  const gmailAccess = !!data?.connected && data.scopes.includes(GMAIL_SCOPE)
+  const { syncGmail } = useInboxMutations()
   const calendars = useGoogleCalendars(calendarAccess)
   const [confirm, setConfirm] = useState(false)
   const [connecting, setConnecting] = useState(false)
@@ -100,7 +103,26 @@ function GoogleSettings() {
                   </div>
                 </Field>
                 <p className="text-sm text-cacau/70">Os clientes vão para os Google Contacts quando quiser: na ficha de cada cliente, <strong className="font-medium text-cacau">Adicionar aos Google Contacts</strong>. Ficam com a etiqueta “Sobremesas — clientes” e, a partir daí, o que mudar na ficha (nome, e-mail, telemóvel) passa também para o contacto.</p>
-                <p className="text-xs text-cacau/50">Leitura das respostas por e-mail chega na próxima fase; a ligação já fica pronta para isso.</p>
+                <p className="text-sm text-cacau/70">Para trazer os contactos que já tem no Google, use <strong className="font-medium text-cacau">Importar do Google</strong> em Clientes.{data.contactsLastSyncAt && <> Última importação: {formatDate(data.contactsLastSyncAt, true)}.</>}</p>
+              </CardBody>
+            </Card>
+          )}
+
+          {data.connected && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2"><Inbox className="h-4 w-4 text-cacau/50" aria-hidden /> Correio recebido</CardTitle>
+                <p className="text-sm text-cacau/60">A caixa de correio é lida a cada minuto. Respostas dos clientes entram na conversa da encomenda (fica “por ler”); e-mails sem encomenda vão para a <Link href="/backoffice/inbox" className="underline">Caixa de entrada</Link>. Respostas que escrever diretamente no Gmail também ficam registadas na encomenda.</p>
+              </CardHeader>
+              <CardBody className="space-y-3">
+                {!gmailAccess ? (
+                  <p className="text-sm text-[#b4534b]">A ligação não tem acesso ao Gmail — volte a ligar a conta.</p>
+                ) : (
+                  <>
+                    <p className="text-sm text-cacau/80">Última leitura: {data.gmailLastSyncAt ? formatDate(data.gmailLastSyncAt, true) : 'ainda nenhuma'}{data.lastError?.startsWith('Gmail:') && <span className="text-[#b4534b]"> · {data.lastError}</span>}</p>
+                    <Button size="sm" variant="secondary" loading={syncGmail.isPending} onClick={() => syncGmail.mutateAsync().then((r) => toast.success(r.onOrders + r.inbox === 0 ? 'Nada de novo.' : `${r.onOrders} em encomendas, ${r.inbox} na caixa de entrada.`)).catch((e) => toast.error(apiErrorMessage(e)))}><RefreshCw className="h-3.5 w-3.5" aria-hidden /> Ler correio agora</Button>
+                  </>
+                )}
               </CardBody>
             </Card>
           )}

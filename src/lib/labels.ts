@@ -48,7 +48,7 @@ export const orderStatusClass: Record<string, string> = {
 }
 export const paymentStatusLabel: Record<string, string> = { pending: 'Por pagar', deposit_paid: 'Sinal pago', paid: 'Pago' }
 export const deliveryModeLabel: Record<string, string> = { delivery: 'Entrega na morada', pickup: 'Levantamento', on_site: 'Serviço no local' }
-export const orderSourceLabel: Record<string, string> = { web: 'Site', whatsapp: 'WhatsApp', instagram: 'Instagram', phone: 'Telefone', in_person: 'Presencial' }
+export const orderSourceLabel: Record<string, string> = { web: 'Site', whatsapp: 'WhatsApp', instagram: 'Instagram', phone: 'Telefone', in_person: 'Presencial', email: 'E-mail' }
 export const transitionLabel: Record<string, string> = {
   reviewing: 'Em análise', proposal_sent: 'Marcar proposta enviada', confirmed: 'Confirmar', completed: 'Concluir', declined: 'Recusar', cancelled: 'Cancelar',
 }

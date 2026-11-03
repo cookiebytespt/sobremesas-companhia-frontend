@@ -1,6 +1,6 @@
 'use client'
 
-import { CalendarDays, ClipboardList, Contact, Images, Mail, MessageSquare, PiggyBank, Users, UtensilsCrossed } from 'lucide-react'
+import { CalendarDays, ClipboardList, Contact, Images, Inbox, Mail, MessageSquare, PiggyBank, Users, UtensilsCrossed } from 'lucide-react'
 import PageHeader from '@/components/backoffice/PageHeader'
 import StatCard from '@/components/backoffice/StatCard'
 import { useCurrentUser } from '@/components/backoffice/CurrentUser'
@@ -25,6 +25,7 @@ export default function DashboardPage() {
         <StatCard label="Mensagens por ler" value={data?.orders.unreadMessages} icon={MessageSquare} href="/backoffice/orders?tab=unread" loading={isLoading} />
         <StatCard label="Eventos nos próximos 7 dias" value={data?.orders.upcomingEvents7Days} icon={CalendarDays} href="/backoffice/orders?tab=confirmed" loading={isLoading} />
         <StatCard label="Sinais por receber" value={data?.orders.depositsDue} icon={PiggyBank} href="/backoffice/orders?tab=confirmed&payment=pending" loading={isLoading} />
+        <StatCard label="Caixa de entrada" value={data?.inbox.open} hint="e-mails sem encomenda" icon={Inbox} href="/backoffice/inbox" loading={isLoading} />
         <StatCard label="Contactos por tratar" value={data?.contacts.unhandled} icon={Mail} href="/backoffice/contacts" loading={isLoading} />
         <StatCard label="Clientes" value={data?.clients.total} icon={Contact} href="/backoffice/clients" loading={isLoading} />
         <StatCard label="Galeria" value={data?.gallery.published} hint={data && data.gallery.unpublished > 0 ? `${data.gallery.unpublished} oculta${data.gallery.unpublished === 1 ? '' : 's'}` : 'fotografias publicadas'} icon={Images} href="/backoffice/gallery" loading={isLoading} />

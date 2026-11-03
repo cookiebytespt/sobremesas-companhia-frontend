@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { AlertTriangle, Clock, Lock, Paperclip, Send, X } from 'lucide-react'
+import { AlertTriangle, Clock, Lock, Mail, Paperclip, Send, X } from 'lucide-react'
 import PhotoDropzone from '@/components/backoffice/PhotoDropzone'
 import { useToast } from '@/components/backoffice/Toaster'
 import { Button } from '@/components/ui/button'
@@ -93,17 +93,25 @@ export default function OrderConversation({ order }: { order: Order }) {
 function MessageBubble({ m }: { m: OrderMessage }) {
   const mine = m.direction === 'out'
   const when = formatDate(m.sentAt ?? m.receivedAt ?? m.createdAt, true)
+  const [showOriginal, setShowOriginal] = useState(false)
+  const fromGmail = m.channel === 'gmail'
   return (
     <li className={cn('flex', mine ? 'justify-end' : 'justify-start')}>
       <div className={cn('max-w-[85%] rounded-2xl px-4 py-3 text-sm', m.internal ? 'border border-merengue bg-merengue/40 text-cacau' : mine ? 'bg-cacau text-acucar' : 'border border-linha bg-acucar text-cacau')}>
         <div className={cn('mb-1 flex flex-wrap items-center gap-x-2 text-[11px]', m.internal ? 'text-cacau/60' : mine ? 'text-acucar/60' : 'text-cacau/50')}>
-          {m.internal ? <><Lock className="h-3 w-3" /> Nota interna · {m.authorName ?? 'equipa'}</> : mine ? <>{m.authorName ?? (templateLabel[m.template ?? ''] ?? 'Sistema')}{m.authorName && m.template && m.template !== 'new_message' ? ` · ${templateLabel[m.template]}` : ''}</> : <>{m.fromEmail}</>}
+          {m.internal ? <><Lock className="h-3 w-3" /> Nota interna · {m.authorName ?? 'equipa'}</> : mine ? <>{m.authorName ?? (fromGmail ? 'Respondido no Gmail' : (templateLabel[m.template ?? ''] ?? 'Sistema'))}{m.authorName && m.template && m.template !== 'new_message' ? ` · ${templateLabel[m.template]}` : ''}</> : <>{m.fromName ? <>{m.fromName} <span className="opacity-70">&lt;{m.fromEmail}&gt;</span></> : m.fromEmail}{fromGmail && <Mail className="h-3 w-3" aria-label="Recebido por e-mail" />}</>}
           <span>· {when}</span>
           {m.pending && !m.sendError && <span className="inline-flex items-center gap-1"><Clock className="h-3 w-3" /> a enviar</span>}
           {m.sendError && <span className="inline-flex items-center gap-1 text-[#ffd5cf]" title={m.sendError}><AlertTriangle className="h-3 w-3" /> falhou</span>}
         </div>
         {m.subject && !m.internal && <p className={cn('mb-1 font-medium', mine ? 'text-acucar' : 'text-cacau')}>{m.subject}</p>}
         <p className="whitespace-pre-wrap">{m.bodyText}</p>
+        {m.bodyHtml && (
+          <div className="mt-2">
+            <button type="button" onClick={() => setShowOriginal((v) => !v)} className="text-[11px] text-cacau/60 underline-offset-2 hover:underline">{showOriginal ? 'Esconder o e-mail original' : 'Ver o e-mail original'}</button>
+            {showOriginal && <iframe sandbox="" srcDoc={m.bodyHtml} title="E-mail original" className="mt-2 h-72 w-full rounded-lg border border-linha bg-white" />}
+          </div>
+        )}
         {m.attachments.length > 0 && (
           <ul className="mt-2 flex flex-wrap gap-2">
             {m.attachments.map((a) => (

@@ -125,13 +125,26 @@ and store the API's tokens in two httpOnly cookies (`src/lib/auth/cookies.ts`): 
   offline orders) and `/backoffice/orders/[id]`: header with the API's `allowedTransitions` as buttons (note + "avisar o
   cliente" switch in a `ConfirmDialog`), tabs *Detalhes* (`RequestCard`, `OrderItemsEditor`, `DetailsCard` — one PATCH with
   only the changed fields, `ClientCard`, `ProposalCard`, `PaymentCard` in `components/backoffice/orders/`), *Conversa*
-  (`OrderConversation`: e-mail thread + internal notes, composer with photo attachments, polls every 15 s) and *Histórico*.
+  (`OrderConversation`: e-mail thread + internal notes, composer with photo attachments, polls every 15 s; inbound mail
+  from the Gmail sync shows the sender's name, a mail icon, "Ver o e-mail original" (sandboxed iframe with `bodyHtml`) and
+  photos; answers the business wrote in Gmail itself appear as "Respondido no Gmail") and *Histórico*.
 - **Clientes** `/backoffice/clients` (+ `[id]`: orders, editable record, merge dialog, "Registar encomenda" for that
   client, **Google Contacts** card: "Adicionar aos Google Contacts" → `clients.pushToGoogle` (`POST /admin/clients/:id/google`,
   toast by `outcome` created/linked/updated), then Abrir / Atualizar (or "Tentar de novo" on `googleSyncError`) / Desligar
   (unlink, the contact stays in Google). Adding is always manual — orders never push.) **Contactos** `/backoffice/contacts` (handled toggle, convert to order). **Google** `/backoffice/settings/google`
   (connect → the API's consent URL → back here with `?connected=1|error=`, scopes, label (contacts are added per client, no toggle), outbox
   counters, retry failed e-mails).
+- **Caixa de entrada** `/backoffice/inbox` (phase 4): e-mails from the connected mailbox that matched no order
+  (`GET /admin/inbox`, tabs por tratar / tratados / ignorados, search, 60 s refetch; "Ler correio agora" →
+  `POST /admin/google/gmail/sync`). Per item: **Nova encomenda** (`inbox/ConvertInboxDialog`: name/phone/occasion/date →
+  `POST …/convert`, then the order page), **Juntar a encomenda** (`inbox/AssignInboxDialog`: the sender's open orders from
+  the detail call, then a search over all orders → `POST …/assign`), **Ignorar** / **Reabrir**. `InboxMessageBody` clamps long
+  text. The sidebar shows counters from the dashboard query (`orders.unreadMessages` on Encomendas, `inbox.open` on Caixa de
+  entrada); the dashboard has a "Caixa de entrada" tile. Clientes gained **Importar do Google** (`ImportContactsDialog`: a
+  dry run shows the counts — total / novos / a ligar / já ligados · sem dados — before `POST /admin/clients/import/google`;
+  "Só a etiqueta" switch). Definições → Google has a "Correio recebido" card (last read, errors, "Ler correio agora").
+  Hooks: `useInbox`, `useInboxItem`, `useInboxMutations` (assign/convert/ignore/reopen/syncGmail),
+  `useClientMutations().importFromGoogle`. `OrderSource` gained `email`.
 - Labels for statuses/payment/delivery/source live in `src/lib/labels.ts`; hooks in `lib/backoffice/queries.ts`
   (`useOrders`, `useOrder`, `useOrderMessages`, `useOrderMutations`, `useClients`, `useClient`, `useClientMutations`,
   `useContacts`, `useContactMutations`, `useGoogleStatus`, `useGoogleMutations`).
@@ -170,4 +183,5 @@ ConfirmDialog, Toaster, InviteUserDialog, NewOrderDialog, LoginForm, UserBits, L
 Phase 0–2: scaffold, BFF, backoffice dashboard, team, gallery, services, occasions. **Phase 3 done (2026-10-30)**: own
 sign-in (Auth0 and the client area removed), public `/request` + `/contact`, Encomendas with the e-mail conversation,
 Clientes, Contactos, Definições → Google. **2026-11-03**: the landing's content ported — the platform is the website.
-Google Contacts push on demand done (2026-11-03). Next: inbound e-mail sync + inbox + contacts import (4), calendar (5), domain switch (6), hardening + passkeys (7).
+Google Contacts push on demand done (2026-11-03). **Phase 4 done (2026-11-03)**: Caixa de entrada, inbound mail in the
+Conversa tab, Google Contacts import. Next: calendar rules/planner (5), domain switch (6), hardening + passkeys (7).

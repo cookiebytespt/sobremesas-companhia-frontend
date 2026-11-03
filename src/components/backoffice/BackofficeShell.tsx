@@ -2,16 +2,18 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { CalendarDays, ClipboardList, Contact, ExternalLink, Images, LayoutDashboard, LogOut, Mail, Menu, Settings, Tags, Users, UtensilsCrossed, X } from 'lucide-react'
+import { CalendarDays, ClipboardList, Contact, ExternalLink, Images, Inbox, LayoutDashboard, LogOut, Mail, Menu, Settings, Tags, Users, UtensilsCrossed, X } from 'lucide-react'
 import { useState } from 'react'
 import { LogoMark } from '@/components/site/LogoMark'
 import type { User } from '@/lib/api/types'
+import { useDashboard } from '@/lib/backoffice/queries'
 import { cn } from '@/lib/utils'
 
 /** Sections grow with the phases: Encomendas, Caixa de entrada, Agenda, Clientes, Contactos, Definições. */
 export const backofficeNav = [
   { href: '/backoffice', label: 'Painel', icon: LayoutDashboard, exact: true },
-  { href: '/backoffice/orders', label: 'Encomendas', icon: ClipboardList },
+  { href: '/backoffice/orders', label: 'Encomendas', icon: ClipboardList, badge: 'unread' },
+  { href: '/backoffice/inbox', label: 'Caixa de entrada', icon: Inbox, badge: 'inbox' },
   { href: '/backoffice/agenda', label: 'Agenda', icon: CalendarDays },
   { href: '/backoffice/clients', label: 'Clientes', icon: Contact },
   { href: '/backoffice/contacts', label: 'Contactos', icon: Mail },
@@ -31,12 +33,16 @@ export default function BackofficeShell({ user, children }: { user: User; childr
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const displayName = user.name ?? user.email ?? 'Admin'
+  // Counters on the nav: unread client messages, open inbox items (the dashboard query is shared and refetches every minute).
+  const { data: summary } = useDashboard()
+  const badges: Record<string, number | undefined> = { unread: summary?.orders.unreadMessages, inbox: summary?.inbox.open }
   const initial = displayName[0]?.toUpperCase() ?? 'A'
 
   const nav = (
     <nav className="flex flex-col gap-0.5 px-3">
       {backofficeNav.map(({ href, label, icon: NavIcon, ...item }) => {
         const active = isActive(pathname, href, 'exact' in item ? item.exact : false)
+        const count = 'badge' in item ? badges[item.badge] : undefined
         return (
           <Link
             key={href}
@@ -48,7 +54,8 @@ export default function BackofficeShell({ user, children }: { user: User; childr
             )}
           >
             <NavIcon className={cn('h-4 w-4', active ? 'text-po' : 'text-acucar/50')} aria-hidden />
-            {label}
+            <span className="flex-1">{label}</span>
+            {count ? <span className="rounded-full bg-po px-2 py-0.5 text-[11px] font-semibold text-cacau">{count}</span> : null}
           </Link>
         )
       })}
