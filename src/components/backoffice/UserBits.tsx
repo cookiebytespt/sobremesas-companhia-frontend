@@ -14,7 +14,7 @@ export function Avatar({ name, email, picture, size = 'md' }: { name: string | n
 }
 
 export function RoleBadge({ role }: { role: UserRole }) {
-  return <Badge className={role === 'admin' ? 'bg-cacau text-acucar' : 'bg-creme text-cacau/80'}>{roleLabel[role]}</Badge>
+  return <Badge className="bg-cacau text-acucar">{roleLabel[role]}</Badge>
 }
 
 export function InviteBadge() {
@@ -25,6 +25,6 @@ export function DisabledBadge() {
   return <Badge className="bg-[#f3dcd9] text-[#7a2e27]">Desativada</Badge>
 }
 
-export function UnverifiedBadge() {
-  return <Badge className="bg-creme text-cacau/70">Email por confirmar</Badge>
+export function GoogleBadge() {
+  return <Badge className="bg-creme text-cacau/80">Google</Badge>
 }

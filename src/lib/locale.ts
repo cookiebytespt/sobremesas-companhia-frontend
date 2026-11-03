@@ -14,21 +14,13 @@ export function documentLocale(): Locale {
   return isLocale(tag) ? tag : defaultLocale
 }
 
-/** Prefix a site path for a locale: `/conta` → `/en/conta` (Portuguese is unprefixed). */
+/** Prefix a site path for a locale: `/request` → `/en/request` (Portuguese is unprefixed). */
 export function localizedPath(locale: Locale, path: string): string {
   const clean = path.startsWith('/') ? path : `/${path}`
   return locale === defaultLocale ? clean : `/${locale}${clean === '/' ? '' : clean}`
 }
 
-/** Auth0 login link that returns to `returnTo` and shows Universal Login in the page's language. */
-export function loginHref(locale: Locale, returnTo = '/conta', options: { signup?: boolean; loginHint?: string } = {}): string {
-  const params = new URLSearchParams({ returnTo: localizedPath(locale, returnTo), ui_locales: localeInfo[locale].htmlLang })
-  if (options.signup) params.set('screen_hint', 'signup')
-  if (options.loginHint) params.set('login_hint', options.loginHint)
-  return `/auth/login?${params.toString()}`
-}
-
-/** Strips a locale prefix: `/en/conta` → `{ locale: 'en', path: '/conta' }`. */
+/** Strips a locale prefix: `/en/request` → `{ locale: 'en', path: '/request' }`. */
 export function splitLocale(pathname: string): { locale: Locale; path: string } {
   const [, first, ...rest] = pathname.split('/')
   if (isLocale(first)) return { locale: first, path: `/${rest.join('/')}` }

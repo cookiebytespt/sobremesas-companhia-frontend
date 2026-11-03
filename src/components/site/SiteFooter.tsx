@@ -1,4 +1,6 @@
+import Link from 'next/link'
 import { getDictionary, type Locale } from '@/i18n'
+import { localizedPath } from '@/lib/locale'
 
 export function SiteFooter({ locale }: { locale: Locale }) {
   const t = getDictionary(locale)
@@ -8,6 +10,8 @@ export function SiteFooter({ locale }: { locale: Locale }) {
         © {new Date().getFullYear()} Sobremesas &amp; Companhia. {t.footer.rights}{' '}
         <span className="text-cacau/40">·</span> {t.common.siteBy}{' '}
         <a href="https://cookiebytes.pt" className="underline-offset-2 hover:underline">CookieBytes</a>
+        <span className="text-cacau/40"> · </span>
+        <Link href={localizedPath(locale, '/privacy')} className="underline-offset-2 hover:underline">{t.footer.privacy}</Link>
       </p>
     </footer>
   )

@@ -1,13 +1,13 @@
 import { randomBytes } from 'node:crypto'
 import { NextRequest, NextResponse } from 'next/server'
-import { auth0 } from '@/lib/auth0'
+import { accessTokenFrom } from '@/lib/auth/cookies'
 import { API_PREFIX, UPLOAD_TOKEN_COOKIE, UPLOAD_TOKEN_HEADER, UPLOAD_TOKEN_MAX_AGE, backendBaseUrl } from '@/lib/api/config'
 
 /**
  * BFF proxy: /api/backend/<path> → {BACKEND_URL}/api/v1/<path>
  *
- * - Attaches `Authorization: Bearer <access token>` from the Auth0 server session (refreshing
- *   it when needed) so the browser never handles the token.
+ * - Attaches `Authorization: Bearer <access token>` from the httpOnly session cookie (or the token
+ *   `src/proxy.ts` just refreshed) so the browser never handles the token.
  * - For visitors without a session, mints a guest form-session token on their first upload,
  *   keeps it in an httpOnly cookie and sends it to the API as `X-Upload-Token`, so the request
  *   they submit afterwards can claim those photos.
@@ -22,7 +22,7 @@ export const dynamic = 'force-dynamic'
 const DROP_REQUEST_HEADERS = new Set([
   'host', 'connection', 'cookie', 'authorization', 'content-length',
   'accept-encoding', 'x-forwarded-for', 'x-forwarded-host', 'x-forwarded-proto',
-  'x-real-ip', 'x-vercel-id', 'x-vercel-forwarded-for', 'x-upload-token',
+  'x-real-ip', 'x-vercel-id', 'x-vercel-forwarded-for', 'x-upload-token', 'x-sc-access',
 ])
 
 const DROP_RESPONSE_HEADERS = new Set([
@@ -40,23 +40,18 @@ async function handler(req: NextRequest, ctx: { params: Promise<{ path: string[]
     if (!DROP_REQUEST_HEADERS.has(key.toLowerCase())) headers.set(key, value)
   })
   headers.set('accept', req.headers.get('accept') ?? 'application/json')
+  // The API rate-limits public routes per client address; tell it who is really calling.
+  const clientIp = req.headers.get('x-forwarded-for') ?? req.headers.get('x-real-ip')
+  if (clientIp) headers.set('x-forwarded-for', clientIp)
 
-  const tokenRes = new NextResponse()
-  const session = await auth0.getSession(req).catch(() => null)
-  if (session) {
-    try {
-      const { token } = await auth0.getAccessToken(req, tokenRes)
-      headers.set('authorization', `Bearer ${token}`)
-    } catch (err) {
-      // Expired refresh token etc. Continue anonymously; Vapor returns 401 where needed.
-      console.warn('[api/backend] could not obtain access token:', err instanceof Error ? err.message : err)
-    }
-  }
+  const accessToken = accessTokenFrom(req)
+  if (accessToken) headers.set('authorization', `Bearer ${accessToken}`)
+  const session = Boolean(accessToken)
 
   // Guest form session: the token travels on uploads and on the request submission that claims them.
   let uploadToken = req.cookies.get(UPLOAD_TOKEN_COOKIE)?.value
   let mintedToken = false
-  const isGuestUploadFlow = path[0] === 'uploads' || path[0] === 'requests'
+  const isGuestUploadFlow = path[0] === 'uploads' || path[0] === 'orders'
   if (!session && isGuestUploadFlow && req.method === 'POST') {
     if (!uploadToken) {
       uploadToken = randomBytes(24).toString('base64url')
@@ -100,11 +95,6 @@ async function handler(req: NextRequest, ctx: { params: Promise<{ path: string[]
       path: '/',
       maxAge: UPLOAD_TOKEN_MAX_AGE,
     })
-  }
-
-  // Propagate refreshed Auth0 session cookies.
-  for (const cookie of tokenRes.headers.getSetCookie()) {
-    res.headers.append('set-cookie', cookie)
   }
 
   return res

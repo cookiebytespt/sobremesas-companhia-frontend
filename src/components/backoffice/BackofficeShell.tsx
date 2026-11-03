@@ -2,16 +2,23 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { ExternalLink, LayoutDashboard, LogOut, Menu, Users, X } from 'lucide-react'
+import { ClipboardList, Contact, ExternalLink, Images, LayoutDashboard, LogOut, Mail, Menu, Settings, Tags, Users, UtensilsCrossed, X } from 'lucide-react'
 import { useState } from 'react'
 import { Icon } from '@/components/site/Icon'
 import type { User } from '@/lib/api/types'
 import { cn } from '@/lib/utils'
 
-/** Sections grow with the phases: Pedidos, Agenda, Contactos, Galeria, Serviços, Definições. */
+/** Sections grow with the phases: Encomendas, Caixa de entrada, Agenda, Clientes, Contactos, Definições. */
 export const backofficeNav = [
   { href: '/backoffice', label: 'Painel', icon: LayoutDashboard, exact: true },
-  { href: '/backoffice/clientes', label: 'Clientes', icon: Users },
+  { href: '/backoffice/orders', label: 'Encomendas', icon: ClipboardList },
+  { href: '/backoffice/clients', label: 'Clientes', icon: Contact },
+  { href: '/backoffice/contacts', label: 'Contactos', icon: Mail },
+  { href: '/backoffice/gallery', label: 'Galeria', icon: Images },
+  { href: '/backoffice/services', label: 'Serviços', icon: UtensilsCrossed },
+  { href: '/backoffice/occasions', label: 'Ocasiões', icon: Tags },
+  { href: '/backoffice/team', label: 'Equipa', icon: Users },
+  { href: '/backoffice/settings/google', label: 'Google', icon: Settings },
 ] as const
 
 function isActive(pathname: string, href: string, exact?: boolean) {
@@ -104,7 +111,7 @@ export default function BackofficeShell({ user, children }: { user: User; childr
             ) : (
               <span className="grid h-9 w-9 place-items-center rounded-full bg-po text-sm font-bold text-cacau">{initial}</span>
             )}
-            <a href="/auth/logout" className="rounded-lg p-2 text-cacau/60 hover:bg-creme hover:text-cacau" title="Terminar sessão" aria-label="Terminar sessão">
+            <a href="/api/auth/logout" className="rounded-lg p-2 text-cacau/60 hover:bg-creme hover:text-cacau" title="Terminar sessão" aria-label="Terminar sessão">
               <LogOut className="h-4 w-4" />
             </a>
           </div>

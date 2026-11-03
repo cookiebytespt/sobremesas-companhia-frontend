@@ -21,6 +21,5 @@ export function pageMetadata(locale: Locale, path = "/", title?: string): Metada
         }
       : undefined,
     openGraph: { title: t.common.brand, description: t.meta.description, locale: localeInfo[locale].ogLocale, type: "website" },
-    robots: path.startsWith("/conta") ? { index: false, follow: false } : undefined,
   };
 }
