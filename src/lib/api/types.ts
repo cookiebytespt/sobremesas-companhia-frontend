@@ -502,6 +502,45 @@ export interface GoogleStatus {
   lastError: string | null
   pendingEmails: number
   failedEmails: number
+  /** Orders mirrored as Google Calendar events / failing to sync. */
+  calendarEvents: number
+  calendarFailed: number
+  calendarLastError: string | null
 }
+
+export interface GoogleCalendar { id: string; name: string; primary: boolean; writable: boolean; color: string | null }
+export interface CalendarSyncResult { written: number; removed: number; failed: number }
+
+/** An order on the agenda, with its Google Calendar event. */
+export interface AgendaOrder {
+  order: OrderListItem
+  calendarLink: string | null
+  calendarSynced: boolean
+  calendarError: string | null
+}
+
+/** Something else in the Google calendar (not an order). Days are `YYYY-MM-DD`, `endDate` inclusive. */
+export interface AgendaEvent {
+  id: string
+  title: string
+  date: string
+  endDate: string
+  allDay: boolean
+  startTime: string | null
+  endTime: string | null
+  location: string | null
+  htmlLink: string | null
+}
+
+export interface Agenda {
+  from: string
+  to: string
+  today: string
+  orders: AgendaOrder[]
+  events: AgendaEvent[]
+  google: { connected: boolean; calendarAccess: boolean; calendarId: string | null; accountEmail: string | null; error: string | null; failedSyncs: number }
+}
+
+export interface AgendaQuery { from: string; to: string; includeClosed?: boolean }
 
 export interface GoogleSettingsInput { calendarId?: string; pushContacts?: boolean; gmailLabelName?: string }

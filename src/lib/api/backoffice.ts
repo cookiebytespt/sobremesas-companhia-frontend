@@ -30,6 +30,10 @@ import type {
   ClientInput,
   ClientListQuery,
   ContactMessage,
+  Agenda,
+  AgendaQuery,
+  CalendarSyncResult,
+  GoogleCalendar,
   GoogleSettingsInput,
   GoogleStatus,
   NewMessageInput,
@@ -45,6 +49,7 @@ import type {
 /** Typed wrappers over `/admin/*`, one per route. */
 export const backofficeApi = {
   dashboard: () => apiFetch<DashboardSummary>('/admin/dashboard'),
+  agenda: (query: AgendaQuery) => apiFetch<Agenda>(`/admin/agenda${qs(query)}`),
   uploads: {
     upload: (file: File, kind: UploadKind, signal?: AbortSignal) => {
       const form = new FormData()
@@ -126,5 +131,7 @@ export const backofficeApi = {
     disconnect: () => apiFetch<void>('/admin/google', { method: 'DELETE' }),
     settings: (input: GoogleSettingsInput) => apiFetch<GoogleStatus>('/admin/google/settings', { method: 'PUT', body: input }),
     retryEmails: () => apiFetch<void>('/admin/google/email/retry', { method: 'POST' }),
+    calendars: () => apiFetch<GoogleCalendar[]>('/admin/google/calendars'),
+    resyncCalendar: () => apiFetch<CalendarSyncResult>('/admin/google/calendar/resync', { method: 'POST' }),
   },
 }

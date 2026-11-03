@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { ClipboardList, Contact, ExternalLink, Images, LayoutDashboard, LogOut, Mail, Menu, Settings, Tags, Users, UtensilsCrossed, X } from 'lucide-react'
+import { CalendarDays, ClipboardList, Contact, ExternalLink, Images, LayoutDashboard, LogOut, Mail, Menu, Settings, Tags, Users, UtensilsCrossed, X } from 'lucide-react'
 import { useState } from 'react'
 import { LogoMark } from '@/components/site/LogoMark'
 import type { User } from '@/lib/api/types'
@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils'
 export const backofficeNav = [
   { href: '/backoffice', label: 'Painel', icon: LayoutDashboard, exact: true },
   { href: '/backoffice/orders', label: 'Encomendas', icon: ClipboardList },
+  { href: '/backoffice/agenda', label: 'Agenda', icon: CalendarDays },
   { href: '/backoffice/clients', label: 'Clientes', icon: Contact },
   { href: '/backoffice/contacts', label: 'Contactos', icon: Mail },
   { href: '/backoffice/gallery', label: 'Galeria', icon: Images },

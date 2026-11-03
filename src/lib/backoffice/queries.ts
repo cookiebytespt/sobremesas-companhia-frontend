@@ -7,7 +7,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { backofficeApi } from '@/lib/api/backoffice'
-import type { AdminCreateOrderInput, AdminCreateUserInput, AdminGalleryQuery, AdminOrderListQuery, AdminOrderUpdateInput, AdminUserListQuery, AdminUserUpdateInput, ClientInput, ClientListQuery, GalleryPhotoInput, GoogleSettingsInput, NewMessageInput, OccasionInput, OfferItemInput, OrderItemInput, PaymentInput, ProposalInput, ServiceInput, TransitionInput } from '@/lib/api/types'
+import type { AgendaQuery, AdminCreateOrderInput, AdminCreateUserInput, AdminGalleryQuery, AdminOrderListQuery, AdminOrderUpdateInput, AdminUserListQuery, AdminUserUpdateInput, ClientInput, ClientListQuery, GalleryPhotoInput, GoogleSettingsInput, NewMessageInput, OccasionInput, OfferItemInput, OrderItemInput, PaymentInput, ProposalInput, ServiceInput, TransitionInput } from '@/lib/api/types'
 
 export const keys = {
   dashboard: ['backoffice', 'dashboard'] as const,
@@ -41,6 +41,12 @@ export const keys = {
     list: (query: { handled?: boolean; page?: number }) => ['backoffice', 'contacts', 'list', query] as const,
   },
   google: ['backoffice', 'google'] as const,
+  googleCalendars: ['backoffice', 'google', 'calendars'] as const,
+  agenda: (query: AgendaQuery) => ['backoffice', 'agenda', query] as const,
+}
+
+export function useAgenda(query: AgendaQuery) {
+  return useQuery({ queryKey: keys.agenda(query), queryFn: () => backofficeApi.agenda(query), placeholderData: (prev) => prev, refetchInterval: 120_000 })
 }
 
 export function useDashboard() {
@@ -248,5 +254,10 @@ export function useGoogleMutations() {
     disconnect: useMutation({ mutationFn: backofficeApi.google.disconnect, onSuccess: done }),
     settings: useMutation({ mutationFn: (input: GoogleSettingsInput) => backofficeApi.google.settings(input), onSuccess: done }),
     retryEmails: useMutation({ mutationFn: backofficeApi.google.retryEmails, onSuccess: done }),
+    resyncCalendar: useMutation({ mutationFn: backofficeApi.google.resyncCalendar, onSuccess: () => { done(); void qc.invalidateQueries({ queryKey: ['backoffice', 'agenda'] }) } }),
   }
+}
+
+export function useGoogleCalendars(enabled: boolean) {
+  return useQuery({ queryKey: keys.googleCalendars, queryFn: backofficeApi.google.calendars, enabled, staleTime: 5 * 60_000 })
 }

@@ -2,21 +2,24 @@
 
 import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { CheckCircle2, Link2, Link2Off, Mail, RefreshCw } from 'lucide-react'
+import Link from 'next/link'
+import { CalendarDays, CheckCircle2, Link2, Link2Off, Mail, RefreshCw } from 'lucide-react'
 import ConfirmDialog from '@/components/backoffice/ConfirmDialog'
 import PageHeader from '@/components/backoffice/PageHeader'
 import { useToast } from '@/components/backoffice/Toaster'
 import { Button } from '@/components/ui/button'
 import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card'
-import { Field, Input } from '@/components/ui/input'
+import { Field, Input, Select } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Switch } from '@/components/ui/switch'
 import { backofficeApi } from '@/lib/api/backoffice'
 import { apiErrorMessage } from '@/lib/api/errors'
-import { useGoogleMutations, useGoogleStatus } from '@/lib/backoffice/queries'
+import { useGoogleCalendars, useGoogleMutations, useGoogleStatus } from '@/lib/backoffice/queries'
 import { formatDate } from '@/lib/labels'
 
 export const dynamic = 'force-dynamic'
+
+const CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar.events'
 
 const scopeLabel: Record<string, string> = {
   'https://www.googleapis.com/auth/gmail.modify': 'Gmail (enviar e ler as conversas)',
@@ -29,7 +32,9 @@ function GoogleSettings() {
   const toast = useToast()
   const params = useSearchParams()
   const { data, isLoading, error } = useGoogleStatus()
-  const { disconnect, settings, retryEmails } = useGoogleMutations()
+  const { disconnect, settings, retryEmails, resyncCalendar } = useGoogleMutations()
+  const calendarAccess = !!data?.connected && data.scopes.includes(CALENDAR_SCOPE)
+  const calendars = useGoogleCalendars(calendarAccess)
   const [confirm, setConfirm] = useState(false)
   const [connecting, setConnecting] = useState(false)
   const [label, setLabel] = useState('')
@@ -96,7 +101,44 @@ function GoogleSettings() {
                   </div>
                 </Field>
                 <Switch checked={data.pushContacts ?? true} onChange={(v) => settings.mutateAsync({ pushContacts: v }).catch((e) => toast.error(apiErrorMessage(e)))} label="Criar novos clientes nos Google Contacts" description="Quando chega uma encomenda de alguém novo (fase 4)." />
-                <p className="text-xs text-cacau/50">Importação de contactos, leitura das respostas e calendário chegam nas próximas fases; a ligação já fica pronta para isso.</p>
+                <p className="text-xs text-cacau/50">Importação de contactos e leitura das respostas chegam na próxima fase; a ligação já fica pronta para isso.</p>
+              </CardBody>
+            </Card>
+          )}
+
+          {data.connected && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2"><CalendarDays className="h-4 w-4 text-cacau/50" aria-hidden /> Calendário</CardTitle>
+                <Link href="/backoffice/agenda" className="text-sm text-cacau/70 underline hover:text-cacau">Ver agenda</Link>
+              </CardHeader>
+              <CardBody className="space-y-4">
+                {!calendarAccess ? (
+                  <p className="rounded-lg bg-merengue px-3 py-2 text-sm text-cacau">Esta ligação não tem acesso ao Calendário. Use “Voltar a ligar” e aceite a permissão do calendário.</p>
+                ) : (
+                  <>
+                    <Field label="Calendário das encomendas" htmlFor="g-calendar" hint="Cada encomenda com data (exceto recusadas e canceladas) tem um evento neste calendário, atualizado sempre que a encomenda muda. A Agenda mostra também os outros eventos deste calendário.">
+                      <Select
+                        id="g-calendar"
+                        value={data.calendarId ?? ''}
+                        disabled={calendars.isLoading || settings.isPending}
+                        onChange={(e) => settings.mutateAsync({ calendarId: e.target.value }).then(() => toast.success('Calendário alterado. Os eventos passam para lá dentro de momentos.')).catch((err) => toast.error(apiErrorMessage(err)))}
+                      >
+                        {calendars.isLoading && <option value={data.calendarId ?? ''}>A carregar…</option>}
+                        {(calendars.data ?? []).filter((c) => c.writable).map((c) => (
+                          <option key={c.id} value={c.primary ? '' : c.id}>{c.name}{c.primary ? ' (principal)' : ''}</option>
+                        ))}
+                        {data.calendarId && calendars.data && !calendars.data.some((c) => c.id === data.calendarId) && <option value={data.calendarId}>{data.calendarId}</option>}
+                      </Select>
+                    </Field>
+                    {calendars.error && <p className="text-sm text-[#b4534b]">{apiErrorMessage(calendars.error)}</p>}
+                    <p className="text-sm text-cacau/80">{data.calendarEvents} encomenda(s) no calendário{data.calendarFailed > 0 && <span className="text-[#b4534b]"> · {data.calendarFailed} com erro</span>}</p>
+                    {data.calendarLastError && <p className="text-sm text-[#b4534b]">Último erro: {data.calendarLastError}</p>}
+                    <Button size="sm" variant="secondary" loading={resyncCalendar.isPending} onClick={() => resyncCalendar.mutateAsync().then((r) => toast.success(r.failed > 0 ? `${r.written} evento(s) atualizados, ${r.failed} com erro.` : `${r.written} evento(s) atualizados.`)).catch((e) => toast.error(apiErrorMessage(e)))}>
+                      <RefreshCw className="h-4 w-4" aria-hidden /> Sincronizar agora
+                    </Button>
+                  </>
+                )}
               </CardBody>
             </Card>
           )}
